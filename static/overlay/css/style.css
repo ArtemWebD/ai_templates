@@ -1,0 +1,148 @@
+.overlay-block {
+    width: 100%;
+    padding: 20px 0;
+    font-weight: 500;
+    font-size: 26px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #000000;
+    border-radius: 5px;
+    opacity: .4;
+    cursor: pointer;
+    transition: .25s ease-in;
+}
+
+.overlay-block:hover {
+    opacity: .6;
+}
+
+.overlay-popup {
+    width: 300px;
+    position: fixed;
+    border: 1px solid #5c5c5c;
+    border-radius: 5px;
+    background: white;
+    display: none;
+}
+
+.overlay-popup_active {
+    display: inline-block;
+}
+
+.overlay-popup ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.overlay-popup ul li {
+    width: 100%;
+    padding: 10px 0;
+    border-bottom: 1px solid #000;
+    font-size: 18px;
+    text-align: center;
+    color: #000!important;
+    cursor: pointer;
+}
+
+.overlay-popup ul li:last-child {
+    border-bottom: none;
+}
+
+.overlay-sidebar {
+    position: fixed;
+    right: -100%;
+    top: 0;
+    height: 100vh;
+    width: 320px;
+    padding: 50px 10px;
+    background: white;
+    border-left: 1px solid #505050;
+    z-index: 999;
+    transition: ease-in .3s;
+}
+
+.overlay-sidebar * {
+    color: #000!important;
+}
+
+.overlay-sidebar_active {
+    right: 0;
+}
+
+.overlay-sidebar__input {
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+}
+
+.overlay-sidebar__input input {
+    margin-right: 10px;
+}
+
+.overlay-sidebar__save {
+    vertical-align: bottom;
+    position: absolute;
+    bottom: 100px;
+    left: 0;
+    width: 100%;
+    height: 50px;
+}
+
+.overlay-sidebar__close {
+    position: absolute;
+    top: 25px;
+    right: 40px;
+    cursor: pointer;
+}
+
+.overlay-sidebar__close::after, .overlay-sidebar__close::before {
+    content: "";
+    display: block;
+    width: 20px;
+    height: 2px;
+    background-color: #000;
+    position: absolute;
+    left: 0;
+}
+
+.overlay-sidebar__close::after {
+    transform: rotate(45deg);
+}
+
+.overlay-sidebar__close::before {
+    transform: rotate(-45deg);
+}
+
+.overlay-sidebar form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.overlay-sidebar form label {
+    font-size: 14px;
+}
+
+.overlay-sidebar textarea {
+    width: 100%;
+    height: 200px;
+    margin: 10px 0;
+    font-size: 14px;
+    resize: none;
+}
+
+.overlay-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    z-index: 999;
+    border: 1px solid #000;
+}

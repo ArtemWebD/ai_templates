@@ -1,0 +1,18 @@
+.templates .col {
+    max-width: 320px;
+    max-height: 340px;
+    position: relative;
+}
+
+.templates .col iframe {
+    transform: scale(.23);
+    transform-origin: top left;
+}
+
+.templates .templates__link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
