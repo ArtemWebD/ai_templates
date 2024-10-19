@@ -6,7 +6,7 @@ import ChatGPT from "../chatGPT/chatGPT.js";
 
 export default (app, upload) => {
     app.post("/upload", upload.single("site"), async (req, res) => {
-        try {
+        try {            
             const file = req.file.buffer;
             const zip = new AdmZip(file);
             const title = req.body.title;
@@ -35,6 +35,7 @@ export default (app, upload) => {
 
             res.status(200).send();
         } catch (e) {
+            res.status(500).send();
             console.log(e);
         }
     });

@@ -36,23 +36,32 @@ const getSites = async () => {
     container.innerHTML = html;
 }
 
-const formHandler = () => {
+const formHandler = async () => {
     const form = document.getElementById("uploadSiteArchive");
 
     if (!form) {
         return;
     }
 
-    const formData = new FormData(form);
-
     form.onsubmit = async (e) => {
         e.preventDefault();
+
+        const title = form.querySelector("#title");
+        const siteArchive = form.querySelector("#siteArchive");
+
+        if (!title || !siteArchive) {
+            return;
+        }
+
+        const formData = new FormData();
+
+        formData.append("title", title.value);
+        formData.append("site", siteArchive.files[0]);
 
         await fetch(`http://${host}/upload`, {
             method: "POST",
             body: formData,
         });
-
         await getSites();
     }
 }
