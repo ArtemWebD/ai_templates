@@ -16,4 +16,6 @@ app.use("/", express.static(path.resolve() + "/static/main"));
 
 routes(app, upload);
 
-app.listen(3000, () => console.log("Server has been started on port 3000"));
+const PORT = process.env.PORT;
+
+app.listen(PORT, () => console.log(`Server has been started on port ${PORT}`));
