@@ -19,12 +19,12 @@ export default (app, upload) => {
             const dom = new JSDOM(htmlFile);
 
             const script = dom.window.document.createElement("script");
-            script.src = "http://localhost:3000/static/overlay/js/script.js";
+            script.src = `http://${req.headers.host}/static/overlay/js/script.js`;
             script.classList.add("overlay-script");
             script.defer = true;
 
             const style = dom.window.document.createElement("link");
-            style.href = "http://localhost:3000/static/overlay/css/style.css";
+            style.href = `http://${req.headers.host}/static/overlay/css/style.css`;
             style.rel = "stylesheet";
             style.classList.add("overlay-script");
 

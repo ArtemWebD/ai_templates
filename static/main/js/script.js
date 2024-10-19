@@ -1,6 +1,7 @@
+const host = window.location.host;
+
 const getSites = async () => {
-    const host = window.location.hostname;
-    const response = await fetch(`https://${host}/templates`);
+    const response = await fetch(`http://${host}/templates`);
     let json;
     
     if (!response.ok) {
@@ -16,7 +17,7 @@ const getSites = async () => {
     }
 
     const getHtml = (title) => {
-        const uri = encodeURI(`https://${host}/static/templates/${title}?title=${title}`);
+        const uri = encodeURI(`http://${host}/static/templates/${title}?title=${title}`);
 
         return `
             <div class="col">
@@ -35,4 +36,26 @@ const getSites = async () => {
     container.innerHTML = html;
 }
 
+const formHandler = () => {
+    const form = document.getElementById("uploadSiteArchive");
+
+    if (!form) {
+        return;
+    }
+
+    const formData = new FormData(form);
+
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+
+        await fetch(`http://${host}/upload`, {
+            method: "POST",
+            body: formData,
+        });
+
+        await getSites();
+    }
+}
+
+formHandler();
 getSites();

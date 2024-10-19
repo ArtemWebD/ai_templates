@@ -1,4 +1,4 @@
-const host = window.location.hostname;
+const host = window.location.host;
 
 const setDefaultPrompt = async () => {
     const prompt = document.querySelector("#prompt");
