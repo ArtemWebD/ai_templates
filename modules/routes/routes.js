@@ -152,6 +152,21 @@ export default (app, upload) => {
 
             zip.writeZip(readyPath);
 
+            const script = dom.window.document.createElement("script");
+            script.src = `http://${req.headers.host}/static/overlay/js/script.js`;
+            script.classList.add("overlay-script");
+            script.defer = true;
+
+            const style = dom.window.document.createElement("link");
+            style.href = `http://${req.headers.host}/static/overlay/css/style.css`;
+            style.rel = "stylesheet";
+            style.classList.add("overlay-script");
+
+            dom.window.document.body.append(script);
+            dom.window.document.body.append(style);
+            
+            await fs.writeFile(templatePath + "/index.html", dom.serialize());
+
             res.status(200).redirect("/static/ready/" + title + ".zip");
         } catch (error) {
             console.log(error);
