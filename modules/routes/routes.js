@@ -3,8 +3,11 @@ import AdmZip from "adm-zip";
 import fs from "fs/promises";
 import jsdom from "jsdom";
 import ChatGPT from "../chatGPT/chatGPT.js";
+import DOM from "../DOM/DOM.js";
 
 export default (app, upload) => {
+    const dom = new DOM();
+
     app.post("/upload", upload.single("site"), async (req, res) => {
         try {            
             const file = req.file.buffer;
@@ -13,25 +16,11 @@ export default (app, upload) => {
             const templatePath = path.resolve() + "/static/templates/" + title;
             
             await zip.extractAllToAsync(templatePath);
-            
-            const { JSDOM } = jsdom;
+
             const htmlFile = await fs.readFile(templatePath + "/index.html");
-            const dom = new JSDOM(htmlFile);
-
-            const script = dom.window.document.createElement("script");
-            script.src = `http://${req.headers.host}/static/overlay/js/script.js`;
-            script.classList.add("overlay-script");
-            script.defer = true;
-
-            const style = dom.window.document.createElement("link");
-            style.href = `http://${req.headers.host}/static/overlay/css/style.css`;
-            style.rel = "stylesheet";
-            style.classList.add("overlay-script");
-
-            dom.window.document.body.append(script);
-            dom.window.document.body.append(style);
+            const updatedHtml = dom.addOverlayScripts(htmlFile, req.headers.host);
             
-            await fs.writeFile(templatePath + "/index.html", dom.serialize());
+            await fs.writeFile(templatePath + "/index.html", updatedHtml);
 
             res.status(200).send();
         } catch (e) {
@@ -125,22 +114,7 @@ export default (app, upload) => {
             const templatePath = path.resolve() + "/static/templates/" + title;
 
             const htmlFile = await fs.readFile(templatePath + "/index.html");
-            const { JSDOM } = jsdom;
-            const dom = new JSDOM(htmlFile);
-
-            dom.window.document.querySelectorAll(".overlay-script").forEach((el) => {
-                el.remove();
-            });
-
-            dom.window.document.querySelectorAll(".overlay-element").forEach((el) => {
-                el.remove();
-            });
-
-            dom.window.document.querySelectorAll('[contenteditable="true"]').forEach((el) => {
-                el.removeAttribute("contenteditable");
-            });
-
-            const htmlString = dom.serialize();
+            const htmlString = dom.removeOverlayElements(htmlFile);
 
             await fs.writeFile(templatePath + "/index.html", htmlString);
 
@@ -151,21 +125,8 @@ export default (app, upload) => {
             const readyPath = path.resolve() + "/static/ready/" + title + ".zip";
 
             zip.writeZip(readyPath);
-
-            const script = dom.window.document.createElement("script");
-            script.src = `http://${req.headers.host}/static/overlay/js/script.js`;
-            script.classList.add("overlay-script");
-            script.defer = true;
-
-            const style = dom.window.document.createElement("link");
-            style.href = `http://${req.headers.host}/static/overlay/css/style.css`;
-            style.rel = "stylesheet";
-            style.classList.add("overlay-script");
-
-            dom.window.document.body.append(script);
-            dom.window.document.body.append(style);
             
-            await fs.writeFile(templatePath + "/index.html", dom.serialize());
+            await fs.writeFile(templatePath + "/index.html", htmlFile);
 
             res.status(200).redirect("/static/ready/" + title + ".zip");
         } catch (error) {
