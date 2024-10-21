@@ -158,4 +158,17 @@ export default (app, upload) => {
             res.status(500).send();
         }
     });
+
+    app.delete("/templates/:title", async (req, res) => {
+        try {
+            const { title } = req.params;
+            const templatePath = path.resolve() + "/static/templates/" + title;
+
+            await fs.rm(templatePath, { recursive: true, force: true });
+            res.status(200).send();
+        } catch (error) {
+            console.log(error);
+            res.status(500).send();
+        }
+    })
 }

@@ -9,10 +9,31 @@
     transform-origin: top left;
 }
 
-.templates .templates__link {
+.templates .templates__link, .templates .templates__delete {
     position: absolute;
-    top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 49%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    opacity: 0;
+    border: 1px solid #000;
+    transition: .2s;
+}
+
+.templates .templates__link {
+    top: 0;
+    text-decoration: none;
+}
+
+.templates .templates__delete {
+    bottom: 0;
+    cursor: pointer;
+}
+
+.templates .col:hover .templates__link, .templates .col:hover .templates__delete {
+    background: rgba(0, 0, 0, .5);
+    opacity: 1;
 }
