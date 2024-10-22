@@ -3,3 +3,5 @@
 .gitignore
 /static/ready
 /static/templates
+/static/sites
+/static/overlay/index.html
