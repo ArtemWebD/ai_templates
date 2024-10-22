@@ -4,18 +4,18 @@ import fs from "fs/promises";
 import jsdom from "jsdom";
 import ChatGPT from "../chatGPT/chatGPT.js";
 import DOM from "../DOM/DOM.js";
+import Zip from "../zip/zip.js";
 
 export default (app, upload) => {
     const dom = new DOM();
+    const zip = new Zip();
 
     app.post("/upload", upload.single("site"), async (req, res) => {
         try {            
             const file = req.file.buffer;
-            const zip = new AdmZip(file);
             const title = req.body.title;
-            const templatePath = path.resolve() + "/static/templates/" + title;
             
-            await zip.extractAllToAsync(templatePath);
+            await zip.unzip(file, title);
 
             const htmlFile = await fs.readFile(templatePath + "/index.html");
             const updatedHtml = dom.addOverlayScripts(htmlFile, req.headers.host);
@@ -118,13 +118,7 @@ export default (app, upload) => {
 
             await fs.writeFile(templatePath + "/index.html", htmlString);
 
-            const zip = new AdmZip();
-
-            await zip.addLocalFolder(templatePath);
-            
-            const readyPath = path.resolve() + "/static/ready/" + title + ".zip";
-
-            zip.writeZip(readyPath);
+            zip.zip(title);
             
             await fs.writeFile(templatePath + "/index.html", htmlFile);
 
