@@ -15,7 +15,7 @@ export default (app, upload) => {
             const title = req.body.title;
             const templatePath = path.resolve() + "/static/templates/" + title;
             
-            await zip.unzip(file, title, templatePath);
+            await zip.unzip(file, templatePath);
             res.status(200).send();
         } catch (error) {
             console.log(error);
