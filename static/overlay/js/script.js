@@ -263,7 +263,7 @@ const addSaveMenu = () => {
 
     container.innerHTML = `
         <button id="saveTemplate">Сохранить</button>
-        <a href="http://${host}/templates/${title}">Скачать</a>
+        <a href="http://${host}/sites/${title}">Скачать</a>
     `;
 
     document.body.append(container);

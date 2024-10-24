@@ -2,6 +2,7 @@
     max-width: 320px;
     max-height: 340px;
     position: relative;
+    overflow: hidden;
 }
 
 .templates .col iframe {
