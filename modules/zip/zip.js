@@ -2,24 +2,22 @@ import path from "path";
 import AdmZip from "adm-zip";
 
 export default class Zip {
-    async unzip(file, title) {
+    async unzip(file, filePath) {
         try {
             const zip = new AdmZip(file);
-            const templatePath = path.resolve() + "/static/templates/" + title;
 
-            await zip.extractAllToAsync(templatePath);
+            await zip.extractAllToAsync(filePath);
         } catch (error) {
             console.log(error);
         }
     }
 
-    async zip(title) {
+    async zip(folderPath, title) {
         try {
             const zip = new AdmZip();
-            const templatePath = path.resolve() + "/static/templates/" + title;
             const readyPath = path.resolve() + "/static/ready/" + title + ".zip";
 
-            await zip.addLocalFolder(templatePath);
+            await zip.addLocalFolder(folderPath);
             zip.writeZip(readyPath);
         } catch (error) {
             console.log(error);
