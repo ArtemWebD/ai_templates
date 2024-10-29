@@ -1,5 +1,94 @@
 const host = window.location.host;
 
+class Metatags {
+    __formContainer;
+
+    __titleEl;
+    __descriptionEl;
+    __keywordsEl;
+
+    addFormContainer() {
+        const container = document.createElement("div");
+        container.classList.add("overlay-centre-popup", "overlay-element", "overlay-metatags");
+
+        const title = document.querySelector("title");
+        const description = document.querySelector("meta[name='description']");
+        const keywords = document.querySelector("meta[name='keywords']");
+
+        container.innerHTML = `
+            <div class="overlay-centre-popup__container">
+                <h2>Сменить мета тэги</h2>
+                <span>Оставьте поля пустыми, чтобы не изменять их</span>
+                <form id="metatagsForm">
+                    <div class="overlay-metatags__tag">
+                        <span>Title: ${title?.textContent || ""}</span>
+                    </div>
+                    <textarea id="meta-title" name="meta-title"></textarea>
+                    <div class="overlay-metatags__tag">
+                        <span>Description: ${description?.content || ""}</span>
+                    </div>
+                    <textarea id="meta-description" name="meta-description"></textarea>
+                    <div class="overlay-metatags__tag">
+                        <span>Keywords: ${keywords?.content || ""}</span>
+                    </div>
+                    <textarea id="meta-keywords" name="meta-keywords"></textarea>
+                    <button>Изменить</button>
+                </form>
+            </div>
+        `;
+
+        this.__titleEl = title;
+        this.__descriptionEl = description;
+        this.__keywordsEl = keywords;
+
+        document.body.append(container);
+        this.__formContainer = container;
+
+        this.__addFormHandler();
+    }
+
+    __addFormHandler() {
+        const form = this.__formContainer.querySelector("#metatagsForm");
+
+        if (!form) {
+            return;
+        }
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+
+            const title = form.querySelector("#meta-title");
+            const description = form.querySelector("#meta-description");
+            const keywords = form.querySelector("#meta-keywords");
+
+            if (!title || !description || !keywords) {
+                return;
+            }
+
+            const body = {
+                title: title.value,
+                description: description.value,
+                keywords: keywords.value,
+            };
+
+            const response = await fetch(`http://${host}/metatags`, {
+                method: "POST",
+                body: JSON.stringify(body),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const json = await response.json();
+            console.log(json);
+        }
+    }
+}
+
 const setDefaultPrompt = async () => {
     const prompt = document.querySelector("#prompt");
     const response = await fetch(`http://${host}/unique`);
@@ -171,6 +260,8 @@ const serverOverlay = () => {
                         console.log(sections)
                         sectionsHandler();
                         break;
+                    case "metatags":
+                        break;
                 }
             }
         });
@@ -219,6 +310,7 @@ const addMenu = () => {
             <li data-target="cut">Вырезать блок</li>
             <li data-target="remove">Удалить блок</li>
             <li data-target="sidebar">Настройка блока</li>
+            <li data-target="metatags">Сменить мета тэги</li>
         </ul>`;
     
     document.body.append(container);
@@ -283,3 +375,7 @@ addSidebar();
 addMenu();
 serverOverlay();
 saveHandler();
+
+const metatags = new Metatags();
+
+metatags.addFormContainer();

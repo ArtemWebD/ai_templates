@@ -143,6 +143,28 @@
     justify-content: space-between;
     align-items: center;
     background: white;
-    z-index: 999;
+    z-index: 9999;
     border: 1px solid #000;
+}
+
+.overlay-centre-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border: 1px solid #000;
+    border-radius: 10px;
+    padding: 20px;
+    color: black;
+    z-index: 9999;
+    max-height: 420px;
+    overflow-y: scroll;
+    scrollbar-width: none;
+}
+
+.overlay-centre-popup textarea {
+    width: 100%;
+    resize: none;
+    height: 100px;
 }

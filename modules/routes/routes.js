@@ -128,7 +128,7 @@ export default (app, upload) => {
                     + req.body.text;
             }
 
-            const response = await chatGPT.createPrompt(prompt);
+            const response = await chatGPT.createUniquePrompt(prompt);
 
             const { JSDOM } = jsdom;
             const dom = new JSDOM(response);
@@ -177,6 +177,44 @@ export default (app, upload) => {
             await fs.writeFile(templatePath, htmlString);
 
             res.status(200).send();
+        } catch (error) {
+            console.log(error);
+            res.status(500).send();
+        }
+    });
+
+    app.post("/metatags", async (req, res) => {
+        try {
+            const chatGPT = ChatGPT.getInstance();
+            const { title, description, keywords } = req.body;
+            const response = {
+                title: "",
+                description: "",
+                keywords: "",
+            }
+            const promptCondition = "\nВозвращай только запрашиваемый контент, без каких-либо комментариев или текста\n"
+                + "Ответ должен содержать HTML код запрашиваемого тэга\n"
+                + "Предоставленный контент будет автоматически опубликован на моем сайте\n";
+            
+            if (title) {
+                response.title = await chatGPT.createMetatagsPrompt(
+                    "Напиши html тэг title по следующим условиям.\n" + title + promptCondition
+                );
+            }
+
+            if (description) {
+                response.description = await chatGPT.createMetatagsPrompt(
+                    "Напиши html тэг <meta name='description'> по следующим условиям.\n" + description + promptCondition
+                );
+            }
+
+            if (keywords) {
+                response.description = await chatGPT.createMetatagsPrompt(
+                    "Напиши html тэг <meta name='keywords'> по следующим условиям.\n" + keywords + promptCondition
+                );
+            }
+
+            res.status(200).send(JSON.stringify(response));
         } catch (error) {
             console.log(error);
             res.status(500).send();

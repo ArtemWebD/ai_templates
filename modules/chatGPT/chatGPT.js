@@ -22,16 +22,32 @@ export default class ChatGPT {
         return this._instance;
     }
 
-    async createPrompt(text) {
+    async createUniquePrompt(text) {
         try {
-            const messages = await this.__writeHistory(text, "user");
+            return this.__createPrompt(text, "gpt_history.json");
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async createMetatagsPrompt(text) {
+        try {
+            return this.__createPrompt(text, "gtp_meta_history.json");
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async __createPrompt(text, historyFile) {
+        try {
+            const messages = await this.__writeHistory(text, "user", historyFile);
             const response = await this.__openaiapi.chat.completions.create({
                 messages,
                 model: 'chatgpt-4o-latest',
             });
             const answer = response.choices[0].message.content;
 
-            await this.__writeHistory(answer, "assistant");
+            await this.__writeHistory(answer, "assistant", historyFile);
 
             return answer;
         } catch (error) {
@@ -39,9 +55,9 @@ export default class ChatGPT {
         }
     }
 
-    async __writeHistory(text, role) {
+    async __writeHistory(text, role, historyFile) {
         try {
-            const pathFile = path.join(path.resolve(), "gtp_history.json");
+            const pathFile = path.join(path.resolve(), historyFile);
             const file = await fs.readFile(pathFile, { encoding: "utf8" });
             const data = JSON.parse(file);
 
