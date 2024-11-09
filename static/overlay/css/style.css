@@ -147,7 +147,7 @@
     border: 1px solid #000;
 }
 
-.overlay-centre-popup {
+.overlay-block-popup {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -161,6 +161,35 @@
     max-height: 420px;
     overflow-y: scroll;
     scrollbar-width: none;
+    display: none;
+}
+
+.overlay-block-popup_active {
+    display: inline-block;
+}
+
+.overlay-block-popup__close {
+    position: absolute;
+    right: 30px;
+    top: 20px;
+    cursor: pointer;
+}
+
+.overlay-block-popup__close::after, .overlay-block-popup__close::before {
+    content: "";
+    display: block;
+    width: 15px;
+    height: 2px;
+    background: #000;
+    position: absolute;
+}
+
+.overlay-block-popup__close::after {
+    transform: rotate(45deg);
+}
+
+.overlay-block-popup__close::before {
+    transform: rotate(-45deg);
 }
 
 .overlay-centre-popup textarea {

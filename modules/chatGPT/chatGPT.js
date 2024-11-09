@@ -32,7 +32,7 @@ export default class ChatGPT {
 
     async createMetatagsPrompt(text) {
         try {
-            return this.__createPrompt(text, "gtp_meta_history.json");
+            return this.__createPrompt(text, "gpt_meta_history.json");
         } catch (error) {
             console.log(error);
         }

@@ -1,6 +1,31 @@
 const host = window.location.host;
 
-class Metatags {
+class Popup {
+    __formContainer;
+
+    open() {
+        this.__formContainer.classList.add("overlay-block-popup_active");
+    }
+
+    close() {
+        this.__formContainer.classList.remove("overlay-block-popup_active");
+    }
+
+    __closeHandler() {
+        const closeButton = this.__formContainer.querySelector(".overlay-block-popup__close");
+
+        if (!closeButton) {
+            return;
+        }
+
+        closeButton.onclick = (e) => {
+            e.preventDefault();
+            this.close();
+        }
+    }
+}
+
+class Metatags extends Popup {
     __formContainer;
 
     __titleEl;
@@ -9,13 +34,14 @@ class Metatags {
 
     addFormContainer() {
         const container = document.createElement("div");
-        container.classList.add("overlay-centre-popup", "overlay-element", "overlay-metatags");
+        container.classList.add("overlay-centre-popup", "overlay-block-popup", "overlay-element", "overlay-metatags");
 
         const title = document.querySelector("title");
         const description = document.querySelector("meta[name='description']");
         const keywords = document.querySelector("meta[name='keywords']");
 
         container.innerHTML = `
+            <div class="overlay-block-popup__close"></div>
             <div class="overlay-centre-popup__container">
                 <h2>Сменить мета тэги</h2>
                 <span>Оставьте поля пустыми, чтобы не изменять их</span>
@@ -45,6 +71,7 @@ class Metatags {
         this.__formContainer = container;
 
         this.__addFormHandler();
+        this.__closeHandler();
     }
 
     __addFormHandler() {
@@ -84,7 +111,88 @@ class Metatags {
             }
 
             const json = await response.json();
-            console.log(json);
+
+            if (json.title) {
+                document.querySelector("title").outerHTML = json.title;
+            }
+
+            if (json.description) {
+                document.querySelector("meta[name='description']").outerHTML = json.description;
+            }
+
+            if (json.keywords) {
+                document.querySelector("meta[name='keywords']").outerHTML = json.keywords;
+            }
+        }
+    }
+}
+
+class Images extends Popup {
+    __formContainer;
+    __img;
+
+    addFormContainer() {
+        const container = document.createElement("div");
+        container.classList.add("overlay-image-popup", "overlay-block-popup", "overlay-element", "overlay-metatags");
+
+        container.innerHTML = `
+            <div class="overlay-block-popup__close"></div>
+            <div class="overlay-image-popup__container">
+                <h2>Сменить картинку</h2>
+                <form>
+                    <input type="file" id="imageFile" name="imageFile" accept="image/*" />
+                    <button>Загрузить</button>
+                </form>
+            </div>
+        `;
+
+        document.body.append(container);
+
+        this.__formContainer = container;
+
+        this.__imageClickHandler();
+        this.__formHandler();
+        this.__closeHandler();
+    }
+
+    __imageClickHandler() {
+        const img = document.querySelectorAll("img");
+
+        img.forEach((el) => {
+            el.onclick = (e) => {
+                e.preventDefault();
+
+                this.open();
+                this.__img = el;
+            }
+        });
+    }
+
+    __formHandler() {
+        const form = this.__formContainer.querySelector("form");
+
+        if (!form) {
+            return;
+        }
+
+        form.onsubmit = (e) => {
+            e.preventDefault();
+
+            const imageFile = form.querySelector("#imageFile");
+
+            if (!imageFile) {
+                return;
+            }
+
+            const fileReader = new FileReader();
+
+            fileReader.onloadend = () => {
+                this.__img.src = fileReader.result;
+            }
+
+            fileReader.readAsDataURL(imageFile.files[0]);
+
+            this.close();
         }
     }
 }
@@ -257,10 +365,11 @@ const serverOverlay = () => {
                     case "sidebar":
                         sidebarHandler(section);
                         sections = document.querySelectorAll("section");
-                        console.log(sections)
                         sectionsHandler();
                         break;
                     case "metatags":
+                        const popup = document.querySelector(".overlay-centre-popup")
+                        popup?.classList.add("overlay-block-popup_active");
                         break;
                 }
             }
@@ -379,3 +488,7 @@ saveHandler();
 const metatags = new Metatags();
 
 metatags.addFormContainer();
+
+const images = new Images();
+
+images.addFormContainer();
