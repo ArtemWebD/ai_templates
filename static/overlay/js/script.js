@@ -249,6 +249,9 @@ class Sidebar {
             <form class="overlay-sidebar__input" id="unique-form">
                 <label for="prompt">Запрос уникализации. Оставьте поле пустым, чтобы использовать стандартный запрос</label>
                 <textarea id="prompt" name="prompt"></textarea>
+                <input type="text" id="language" name="language" placeholder="Язык (необязательно)"></input>
+                <input type="checkbox" id="allBlocks" name="allBlocks" />
+                <label for="allBlocks">Применить запрос ко всем блокам на странице</label>
                 <button class="overlay-sidebar__unique">Уникализировать текст</button>
             </form>
             <button class="overlay-sidebar__save">Сохранить</button>
@@ -321,6 +324,28 @@ class Sidebar {
 
     async __uniqueBlock(section) {
         const prompt = this.__element.querySelector("#prompt").value.trim();
+        const isAllBlocks = this.__element.querySelector("#allBlocks");
+        const languageInput = this.__element.querySelector("#language");
+
+        if (!isAllBlocks || !languageInput) {
+            return;
+        }
+
+        const language = languageInput.value.trim();
+
+        if (!isAllBlocks.checked) {
+            await this.__uniqueOneSection(section, prompt, language);
+            return;
+        }
+
+        const sections = Array.from(document.querySelectorAll("section"));
+
+        for (let i = 0; i < sections.length; i++) {
+            await this.__uniqueOneSection(sections[i], prompt, language);
+        }
+    }
+
+    async __uniqueOneSection(section, prompt, language) {
         const text = section.outerHTML;
 
         const response = await fetch(`http://${host}/unique`, {
@@ -328,7 +353,7 @@ class Sidebar {
             headers: {
                 "Content-type": "application/json",
             },
-            body: JSON.stringify({ text, prompt }),
+            body: JSON.stringify({ text, prompt, language }),
         });
         
         if (!response.ok) {
