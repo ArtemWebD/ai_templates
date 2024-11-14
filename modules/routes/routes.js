@@ -114,21 +114,27 @@ export default (app, upload) => {
     app.post("/unique", async (req, res) => {
         try {
             const chatGPT = ChatGPT.getInstance();
-            let prompt;
+            const { prompt, text, language } = req.body;
+            let gptPrompt;
 
-            if (!req.body.prompt) {
+            if (!prompt) {
                 const pathPrompt = path.resolve() + "/prompts/unique.txt";
                 const promptFile = await fs.readFile(pathPrompt, { encoding: "utf8" });
-                prompt = promptFile + req.body.text;
+                gptPrompt = promptFile;
             } else {
-                prompt = req.body.prompt 
+                gptPrompt = prompt 
                     + "\nВозвращай только запрашиваемый контент, без каких-либо комментариев или текста\n"
                     + "\nОтвет должен содержать HTML код исходного блока с изменениями\n"
-                    + "\nПредоставленный контент будет автоматически опубликован на моем сайте\n"
-                    + req.body.text;
+                    + "\nПредоставленный контент будет автоматически опубликован на моем сайте\n";
             }
 
-            const response = await chatGPT.createUniquePrompt(prompt);
+            if (language) {
+                gptPrompt += "\nЯзык ответа: " + language + "\n";
+            }
+
+            gptPrompt += text;
+
+            const response = await chatGPT.createUniquePrompt(gptPrompt);
 
             const { JSDOM } = jsdom;
             const dom = new JSDOM(response);
