@@ -1,8 +1,13 @@
+.navbar {
+    z-index: 99;
+}
+
 .templates .col {
-    max-width: 320px;
-    max-height: 340px;
+    width: 320px;
+    height: 340px;
     position: relative;
     overflow: hidden;
+    flex: none;
 }
 
 .templates .col iframe {

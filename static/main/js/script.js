@@ -169,7 +169,7 @@ class Sites {
             const uri = encodeURI(`http://${host}/static/sites/${title}?title=${title}`);
 
             return `
-                <div class="col">
+                <div class="col mt-2">
                     <h3>${title}</h3>
                     <iframe class="mt-2" src="${uri}" frameborder="0" width="1280" height="1280" scrolling="no">
                     </iframe>
