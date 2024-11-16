@@ -23,50 +23,34 @@ export default class ChatGPT {
     }
 
     async createUniquePrompt(text) {
-        try {
-            return this.__createPrompt(text, "gpt_history.json");
-        } catch (error) {
-            console.log(error);
-        }
+        return this.__createPrompt(text, "gpt_history.json");
     }
 
     async createMetatagsPrompt(text) {
-        try {
-            return this.__createPrompt(text, "gpt_meta_history.json");
-        } catch (error) {
-            console.log(error);
-        }
+        return this.__createPrompt(text, "gpt_meta_history.json");
     }
 
     async __createPrompt(text, historyFile) {
-        try {
-            const messages = await this.__writeHistory(text, "user", historyFile);
-            const response = await this.__openaiapi.chat.completions.create({
-                messages,
-                model: 'chatgpt-4o-latest',
-            });
-            const answer = response.choices[0].message.content;
+        const messages = await this.__writeHistory(text, "user", historyFile);
+        const response = await this.__openaiapi.chat.completions.create({
+            messages,
+            model: 'chatgpt-4o-latest',
+        });
+        const answer = response.choices[0].message.content;
 
-            await this.__writeHistory(answer, "assistant", historyFile);
+        await this.__writeHistory(answer, "assistant", historyFile);
 
-            return answer;
-        } catch (error) {
-            console.log(error);
-        }
+        return answer;
     }
 
     async __writeHistory(text, role, historyFile) {
-        try {
-            const pathFile = path.join(path.resolve(), historyFile);
-            const file = await fs.readFile(pathFile, { encoding: "utf8" });
-            const data = JSON.parse(file);
+        const pathFile = path.join(path.resolve(), historyFile);
+        const file = await fs.readFile(pathFile, { encoding: "utf8" });
+        const data = JSON.parse(file);
 
-            data.push({ "role": role, "content": text });
-            await fs.writeFile(pathFile, JSON.stringify(data));
+        data.push({ "role": role, "content": text });
+        await fs.writeFile(pathFile, JSON.stringify(data));
 
-            return data;
-        } catch (error) {
-            console.log(error);
-        }
+        return data;
     }
 }
