@@ -39,4 +39,13 @@ export default class DOM {
 
         return dom.serialize();
     }
+
+    getAllImgPaths(file) {
+        const { JSDOM } = jsdom;
+        const dom = new JSDOM(file);
+
+        const images = Array.from(dom.window.document.querySelectorAll("img"));
+
+        return images.map((element) => element.src);
+    }
 }
