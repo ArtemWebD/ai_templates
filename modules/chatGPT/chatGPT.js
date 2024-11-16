@@ -52,6 +52,6 @@ export default class ChatGPT {
         // await fs.writeFile(pathFile, JSON.stringify(data));
 
         // return data;
-        return { "role": role, "content": text }
+        return [{ "role": role, "content": text }];
     }
 }
