@@ -320,7 +320,7 @@ class Images extends Popup {
             return;
         }
 
-        form.onsubmit = (e) => {
+        form.onsubmit = async (e) => {
             e.preventDefault();
 
             const imageFile = form.querySelector("#imageFile");
@@ -329,17 +329,37 @@ class Images extends Popup {
                 return;
             }
 
-            const fileReader = new FileReader();
+            const urlParams = new URLSearchParams(window.location.search);
+            const siteTitle = urlParams.get("title");
 
-            fileReader.onloadend = () => {
-                this.__img.src = fileReader.result;
+            const formData = new FormData();
 
-                const alert = new Alert();
+            formData.append("siteTitle", siteTitle);
+            formData.append("image", imageFile.files[0]);
 
-                alert.show("Картинка успешно изменена", "success");
+            const button = form.querySelector("button");
+            const loader = new Loader();
+
+            button.disabled = true;
+            loader.show();
+
+            const customFetch = new CustomFetch();
+
+            const response = await customFetch.fetch(`http://${host}/image`, {
+                method: "POST",
+                body: formData
+            }, "Картинка успешно изменена", "При загрузке картинки произошла ошибка, попробуйте снова");
+
+            if (!response) {
+                button.disabled = false;
+                loader.hide()
+                return;
             }
 
-            fileReader.readAsDataURL(imageFile.files[0]);
+            this.__img.src = await response.text();
+
+            button.disabled = false;
+            loader.hide();
 
             this.close();
         }
