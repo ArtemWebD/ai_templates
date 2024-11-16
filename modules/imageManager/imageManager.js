@@ -21,10 +21,12 @@ export default class ImageManager {
         const dirname = "overlay-images/";
         const dirPath = directory + dirname;
 
+        let images = [];
+
         try {
             await fs.access(directory);
+            images = await fs.readdir(dirPath);
         } catch (error) {
-            return;
         }
 
         const htmlPath = directory + "index.html";
@@ -39,7 +41,6 @@ export default class ImageManager {
 
             return acc;
         }, []);
-        const images = await fs.readdir(dirPath);
 
         for (let i = 0; i < images.length; i++) {
             const element = dirname + images[i];
