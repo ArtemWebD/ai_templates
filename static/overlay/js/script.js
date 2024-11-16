@@ -1,18 +1,94 @@
 const host = window.location.host;
 
+class CustomFetch {
+    __alert = new Alert();
+
+    async fetch(url, body, successMessage = "", errorMessage = "") {
+        const response = await fetch(url, body);
+
+        if (!response.ok) {
+            if (errorMessage) {
+                this.__alert.show(errorMessage, "danger");
+            }
+
+            return;
+        }
+
+        if (successMessage) {
+            this.__alert.show(successMessage, "success");
+        }
+
+        return response;
+    }
+}
+
+class Alert {
+    show(message, type) {
+        if (type !== "success" && type !== "danger") {
+            return;
+        }
+
+        const container = document.createElement("div");
+        container.classList.add("overlay-alert", `overlay-alert_${type}`, "overlay-element");
+
+        container.innerHTML = `
+            <span class="overlay-alert__message">${message}</span>
+        `;
+
+        document.body.append(container);
+
+        this.__hideHandler(container);
+    }
+
+    __hideHandler(element) {
+        const styles = getComputedStyle(element);
+        const time = (parseFloat(styles.animationDuration) + parseFloat(styles.animationDelay)) * 1000;
+
+        setTimeout(() => element.remove(), time);
+    }
+}
+
+class Loader {
+    __element;
+
+    show() {
+        const container = document.createElement("div");
+        container.classList.add("overlay-loader", "overlay-element");
+
+        container.innerHTML = `
+            <span class="overlay-loader__element"></span>
+        `;
+
+        document.body.append(container);
+        this.__element = container;
+    }
+
+    hide() {
+        if (!this.__element) {
+            return;
+        }
+
+        this.__element.remove();
+    }
+}
+
 class Popup {
     __formContainer;
 
+    __popupOverlay = PopupOverlay.getInstance();
+
     open() {
         this.__formContainer.classList.add("overlay-block-popup_active");
+        this.__popupOverlay.show();
     }
 
     close() {
         this.__formContainer.classList.remove("overlay-block-popup_active");
+        this.__popupOverlay.hide();
     }
 
     __closeHandler() {
-        const closeButton = this.__formContainer.querySelector(".overlay-block-popup__close");
+        const closeButton = this.__formContainer.querySelector(".overlay-close-element");
 
         if (!closeButton) {
             return;
@@ -22,6 +98,42 @@ class Popup {
             e.preventDefault();
             this.close();
         }
+    }
+}
+
+class PopupOverlay {
+    __element;
+
+    __saveMenu = SaveMenu.getInstance();
+
+    static __instance;
+
+    static getInstance() {
+        if (!PopupOverlay.__instance) {
+            PopupOverlay.__instance = new PopupOverlay();
+        }
+
+        return PopupOverlay.__instance;
+    }
+
+    addElement() {
+        const container = document.createElement("div");
+        container.classList.add("overlay-popup-overlay", "overlay-element");
+
+        document.body.append(container);
+        this.__element = container;
+    }
+
+    show() {
+        document.body.style.overflow = "hidden";
+        this.__element.classList.add("overlay-popup-overlay__active");
+        this.__saveMenu.hide();
+    }
+
+    hide() {
+        document.body.style.overflow = "inherit";
+        this.__element.classList.remove("overlay-popup-overlay__active");
+        this.__saveMenu.show();
     }
 }
 
@@ -51,24 +163,24 @@ class Metatags extends Popup {
         const keywords = document.querySelector("meta[name='keywords']");
 
         container.innerHTML = `
-            <div class="overlay-block-popup__close"></div>
+            <div class="overlay-close-element"></div>
             <div class="overlay-centre-popup__container">
                 <h2>Сменить мета тэги</h2>
-                <span>Оставьте поля пустыми, чтобы не изменять их</span>
+                <span>Введите в поля запрос на изменение тэгов. Оставьте поля пустыми, чтобы не изменять их</span>
                 <form id="metatagsForm">
                     <div class="overlay-metatags__tag">
                         <span>Title: ${title?.textContent || ""}</span>
                     </div>
-                    <textarea id="meta-title" name="meta-title"></textarea>
+                    <textarea class="overlay-input" id="meta-title" name="meta-title"></textarea>
                     <div class="overlay-metatags__tag">
                         <span>Description: ${description?.content || ""}</span>
                     </div>
-                    <textarea id="meta-description" name="meta-description"></textarea>
+                    <textarea class="overlay-input" id="meta-description" name="meta-description"></textarea>
                     <div class="overlay-metatags__tag">
                         <span>Keywords: ${keywords?.content || ""}</span>
                     </div>
-                    <textarea id="meta-keywords" name="meta-keywords"></textarea>
-                    <button>Изменить</button>
+                    <textarea class="overlay-input" id="meta-keywords" name="meta-keywords"></textarea>
+                    <button class="overlay-button">Изменить</button>
                 </form>
             </div>
         `;
@@ -94,6 +206,9 @@ class Metatags extends Popup {
         form.onsubmit = async (e) => {
             e.preventDefault();
 
+            const button = form.querySelector("button");
+            const loader = new Loader();
+
             const title = form.querySelector("#meta-title");
             const description = form.querySelector("#meta-description");
             const keywords = form.querySelector("#meta-keywords");
@@ -108,15 +223,22 @@ class Metatags extends Popup {
                 keywords: keywords.value,
             };
 
-            const response = await fetch(`http://${host}/metatags`, {
+            button.disabled = true;
+            loader.show();
+
+            const customFetch = new CustomFetch();
+
+            const response = await customFetch.fetch(`http://${host}/metatags`, {
                 method: "POST",
                 body: JSON.stringify(body),
                 headers: {
                     "Content-Type": "application/json"
                 }
-            });
+            }, "Мета тэги успешно изменены", "Произошла непредвиденная ошибка, попробуйте отправить запрос снова");
 
-            if (!response.ok) {
+            if (!response) {
+                button.disabled = false;
+                loader.hide();
                 return;
             }
 
@@ -133,6 +255,9 @@ class Metatags extends Popup {
             if (json.keywords) {
                 document.querySelector("meta[name='keywords']").outerHTML = json.keywords;
             }
+
+            button.disabled = false;
+            loader.hide();
         }
     }
 }
@@ -156,12 +281,12 @@ class Images extends Popup {
         container.classList.add("overlay-image-popup", "overlay-block-popup", "overlay-element", "overlay-metatags");
 
         container.innerHTML = `
-            <div class="overlay-block-popup__close"></div>
+            <div class="overlay-close-element"></div>
             <div class="overlay-image-popup__container">
                 <h2>Сменить картинку</h2>
                 <form>
                     <input type="file" id="imageFile" name="imageFile" accept="image/*" />
-                    <button>Загрузить</button>
+                    <button class="overlay-button">Загрузить</button>
                 </form>
             </div>
         `;
@@ -208,6 +333,10 @@ class Images extends Popup {
 
             fileReader.onloadend = () => {
                 this.__img.src = fileReader.result;
+
+                const alert = new Alert();
+
+                alert.show("Картинка успешно изменена", "success");
             }
 
             fileReader.readAsDataURL(imageFile.files[0]);
@@ -219,6 +348,8 @@ class Images extends Popup {
 
 class Sidebar {
     __element;
+
+    __popupOverlay = PopupOverlay.getInstance();
 
     static __instance;
 
@@ -234,28 +365,37 @@ class Sidebar {
         const container = document.createElement("div");
         container.classList.add("overlay-sidebar", "overlay-element");
         container.innerHTML = `
-            <div class="overlay-sidebar__input">
-                <input type="color" id="background" name="background"/>
-                <label for="background">Фон блока</label>
+            <div class="overlay-sidebar__element">
+                <h3>Цвета</h3>
+                <div class="overlay-sidebar__input">
+                    <input type="color" id="background" name="background"/>
+                    <label for="background">Фон блока</label>
+                </div>
+                <div class="overlay-sidebar__input">
+                    <input type="color" id="color" name="color"/>
+                    <label for="color">Цвет текста</label>
+                </div>
+                <div class="overlay-sidebar__input">
+                    <input type="color" id="bodyColor" name="bodyColor"/>
+                    <label for="bodyColor">Фон сайта</label>
+                </div>
             </div>
-            <div class="overlay-sidebar__input">
-                <input type="color" id="color" name="color"/>
-                <label for="color">Цвет текста</label>
+            <div class="overlay-sidebar__element">
+                <h3>Уникализация текста</h3>
+                <form class="overlay-sidebar__input" id="unique-form">
+                    <label for="prompt">Запрос уникализации. Оставьте поле пустым, чтобы использовать стандартный запрос</label>
+                    <textarea class="overlay-input" id="prompt" name="prompt"></textarea>
+                    <label for="language">Язык, на котором будет возвращен результат. Оставьте поле пустым, чтобы использовать язык по умолчанию (русский)</label>
+                    <input class="overlay-input" type="text" id="language" name="language" placeholder="Язык (необязательно)"></input>
+                    <div class="overlay-sidebar__checkbox">
+                        <input type="checkbox" id="allBlocks" name="allBlocks" />
+                        <label for="allBlocks">Применить запрос ко всем блокам на странице</label>
+                    </div>
+                    <button class="overlay-button overlay-sidebar__unique">Уникализировать текст</button>
+                </form>
             </div>
-            <div class="overlay-sidebar__input">
-                <input type="color" id="bodyColor" name="bodyColor"/>
-                <label for="bodyColor">Фон сайта</label>
-            </div>
-            <form class="overlay-sidebar__input" id="unique-form">
-                <label for="prompt">Запрос уникализации. Оставьте поле пустым, чтобы использовать стандартный запрос</label>
-                <textarea id="prompt" name="prompt"></textarea>
-                <input type="text" id="language" name="language" placeholder="Язык (необязательно)"></input>
-                <input type="checkbox" id="allBlocks" name="allBlocks" />
-                <label for="allBlocks">Применить запрос ко всем блокам на странице</label>
-                <button class="overlay-sidebar__unique">Уникализировать текст</button>
-            </form>
-            <button class="overlay-sidebar__save">Сохранить</button>
-            <div class="overlay-sidebar__close"></div>
+            <button class="overlay-button overlay-sidebar__save">Сохранить</button>
+            <div class="overlay-close-element"></div>
         `;
 
         document.body.append(container);
@@ -267,10 +407,12 @@ class Sidebar {
 
     open() {
         this.__element.classList.add("overlay-sidebar_active");
+        this.__popupOverlay.show();
     }
 
     close() {
         this.__element.classList.remove("overlay-sidebar_active");
+        this.__popupOverlay.hide();
     }
 
     sidebarHandler(section) {
@@ -278,7 +420,7 @@ class Sidebar {
         const color = this.__element.querySelector("#color");
         const bodyColor = this.__element.querySelector("#bodyColor");
         const unique = this.__element.querySelector("#unique-form");
-        const close = this.__element.querySelector(".overlay-sidebar__close");
+        const close = this.__element.querySelector(".overlay-close-element");
         const save = this.__element.querySelector(".overlay-sidebar__save");
 
         if (!background || !color || !bodyColor || !unique || !close || !save) {
@@ -307,7 +449,17 @@ class Sidebar {
 
         unique.onsubmit = async (event) => {
             event.preventDefault();
+
+            const button = unique.querySelector("button");
+            const loader = new Loader();
+
+            button.disabled = true;
+            loader.show();
+
             await this.__uniqueBlock(section);
+
+            button.disabled = false;
+            loader.hide();
         }
 
         close.onclick = () => {
@@ -348,15 +500,17 @@ class Sidebar {
     async __uniqueOneSection(section, prompt, language) {
         const text = section.outerHTML;
 
-        const response = await fetch(`http://${host}/unique`, {
+        const customFetch = new CustomFetch();
+
+        const response = await customFetch.fetch(`http://${host}/unique`, {
             method: "POST",
             headers: {
                 "Content-type": "application/json",
             },
             body: JSON.stringify({ text, prompt, language }),
-        });
-        
-        if (!response.ok) {
+        }, "Блок успешно уникализирован", "В процессе уникализации произошла ошибка");
+
+        if (!response) {
             return;
         }
         
@@ -445,7 +599,7 @@ class ContextMenu {
                         const sidebar = Sidebar.getInstance();
                         sidebar.open();
                         sidebar.sidebarHandler(section);
-                        this.sectionsHandler();
+                        this.__sectionsHandler();
                         break;
                     case "metatags":
                         const metatags = Metatags.getInstance();
@@ -474,7 +628,7 @@ class ContextMenu {
             el.after(overlayBlock);
         });
 
-        overlayBlocksHandler(section);
+        this.__overlayBlocksHandler(section);
     }
 
     __overlayBlocksHandler(section) {
@@ -524,14 +678,23 @@ class SaveMenu {
         const title = urlParams.get("title");
 
         container.innerHTML = `
-            <button id="saveTemplate">Сохранить</button>
-            <a href="http://${host}/sites/${title}">Скачать</a>
+            <button class="overlay-button" id="saveTemplate">Сохранить</button>
+            <a class="overlay-link" href="http://${host}/sites/${title}">Скачать</a>
         `;
 
         document.body.append(container);
         this.__element = container;
 
         this.__saveHandler();
+        this.__scrollHandler();
+    }
+
+    hide() {
+        this.__element.classList.add("overlay-menu__hidden");
+    }
+
+    show() {
+        this.__element.classList.remove("overlay-menu__hidden");
     }
 
     __saveHandler() {
@@ -542,6 +705,9 @@ class SaveMenu {
         }
 
         saveButton.onclick = async () => {
+            const loader = new Loader();
+
+            loader.show();
             saveButton.disabled = true;
 
             const urlParams = new URLSearchParams(window.location.search);
@@ -549,15 +715,34 @@ class SaveMenu {
             const html = document.documentElement.outerHTML;
             const body = JSON.stringify({ title, html });
 
-            await fetch(`http://${host}/save`, {
+            const customFetch = new CustomFetch();
+
+            await customFetch.fetch(`http://${host}/save`, {
                 method: "POST",
                 headers: {
                     "Content-type": "application/json",
                 },
                 body,
-            });
+            }, "Проект успешно сохранен", "При сохранении проекта произошла ошибка, попробуйте повторить попытку позже");
 
             saveButton.disabled = false;
+            loader.hide();
+        }
+    }
+
+    __scrollHandler() {
+        let prevScrollPos = window.pageYOffset;
+
+        window.onscroll = (e) => {
+            const currentScrollPos = window.pageYOffset;
+
+            if (prevScrollPos > currentScrollPos) {
+                this.show();
+            } else {
+                this.hide();
+            }
+
+            prevScrollPos = currentScrollPos;
         }
     }
 }
@@ -591,3 +776,7 @@ contextMenu.addElement();
 const saveMenu = SaveMenu.getInstance();
 
 saveMenu.addElement();
+
+const popupOverlay = PopupOverlay.getInstance();
+
+popupOverlay.addElement();

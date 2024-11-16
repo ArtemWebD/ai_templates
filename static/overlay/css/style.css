@@ -1,3 +1,146 @@
+.overlay-button {
+    outline: none;
+    background-color: #0d6efd;
+    color: white!important;
+    font-weight: 500;
+    border: 2px solid #0d6efd;
+    border-radius: 5px;
+    padding: 5px;
+    transition: .2s linear;
+}
+
+.overlay-button:hover {
+    background-color: transparent;
+    color: #0d6efd!important;
+}
+
+.overlay-button:disabled {
+    background-color: #9f9f9f;
+    border-color: #9f9f9f;
+}
+
+.overlay-button:disabled:hover {
+    background-color: #9f9f9f;
+    color: white!important;
+}
+
+.overlay-link {
+    text-decoration: none;
+    color: #0d6efd;
+}
+
+.overlay-input {
+    border-radius: 5px;
+    border: 1px solid #888888;
+    scrollbar-width: none;
+    padding: 5px 10px;
+    outline: none;
+}
+
+.overlay-close-element {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    transition: .45s ease-in-out;
+}
+
+.overlay-close-element:hover {
+    transform: rotate(360deg);
+}
+
+.overlay-close-element:hover::after, .overlay-close-element:hover::before {
+    background-color: #0d6efd;
+}
+
+.overlay-close-element::after, .overlay-close-element::before {
+    content: "";
+    display: block;
+    border-radius: 2px;
+    width: 20px;
+    height: 2px;
+    background-color: #000;
+    position: absolute;
+    left: 0;
+    top: 10px;
+    transition: .15s linear;
+}
+
+.overlay-close-element::after {
+    transform: rotate(45deg);
+}
+
+.overlay-close-element::before {
+    transform: rotate(-45deg);
+}
+
+.overlay-loader {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.overlay-loader__element {
+    display: inline-block;
+    border: 16px solid #f3f3f3;
+    border-top: 16px solid #0d6efd;
+    border-left: 16px solid #0d6efd;
+    border-right: 16px solid #0d6efd;
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.overlay-alert {
+    width: 320px;
+    padding: 12px 20px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    z-index: 9999;
+    transform: translateX(-50%);
+    animation: fade 1s 5s forwards;
+}
+
+@keyframes fade {
+    0% {
+        opacity: 1;
+    }
+    
+    100% {
+        opacity: 0;
+    }
+}
+
+.overlay-alert_success {
+    color: #155724;
+    background: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.overlay-alert_danger {
+    color: #721c24;
+    background: #f8d7da;
+    border-color: #f5c6cb;
+}
+
 .overlay-block {
     width: 100%;
     padding: 20px 0;
@@ -18,11 +161,11 @@
 }
 
 .overlay-popup {
-    width: 300px;
+    width: 150px;
     position: fixed;
     border: 1px solid #5c5c5c;
-    border-radius: 5px;
-    background: white;
+    border-radius: 2px;
+    background: rgb(232, 232, 232);
     display: none;
 }
 
@@ -39,12 +182,18 @@
 
 .overlay-popup ul li {
     width: 100%;
-    padding: 10px 0;
+    padding: 3px 0;
     border-bottom: 1px solid #000;
-    font-size: 18px;
+    font-size: 16px;
     text-align: center;
     color: #000!important;
     cursor: pointer;
+    transition: .15s linear;
+}
+
+.overlay-popup ul li:hover {
+    background: #0d6efd;
+    color: white!important;
 }
 
 .overlay-popup ul li:last-child {
@@ -56,11 +205,13 @@
     right: -100%;
     top: 0;
     height: 100vh;
+    max-height: 100vh;
+    overflow-y: scroll;
+    scrollbar-width: none;
     width: 320px;
-    padding: 50px 10px;
-    background: white;
-    border-left: 1px solid #505050;
-    z-index: 999;
+    padding: 50px 10px 10px;
+    background: rgb(232, 232, 232);
+    z-index: 9999;
     transition: ease-in .3s;
 }
 
@@ -68,8 +219,17 @@
     color: #000!important;
 }
 
+.overlay-sidebar button {
+    color: white!important;
+}
+
 .overlay-sidebar_active {
     right: 0;
+}
+
+.overlay-sidebar__element {
+    border-bottom: 1px solid #6a6a6a;
+    padding-top: 20px;
 }
 
 .overlay-sidebar__input {
@@ -83,37 +243,9 @@
 }
 
 .overlay-sidebar__save {
-    vertical-align: bottom;
-    position: absolute;
-    bottom: 0px;
-    left: 0;
     width: 100%;
     height: 50px;
-}
-
-.overlay-sidebar__close {
-    position: absolute;
-    top: 25px;
-    right: 40px;
-    cursor: pointer;
-}
-
-.overlay-sidebar__close::after, .overlay-sidebar__close::before {
-    content: "";
-    display: block;
-    width: 20px;
-    height: 2px;
-    background-color: #000;
-    position: absolute;
-    left: 0;
-}
-
-.overlay-sidebar__close::after {
-    transform: rotate(45deg);
-}
-
-.overlay-sidebar__close::before {
-    transform: rotate(-45deg);
+    margin-top: 20px;
 }
 
 .overlay-sidebar form {
@@ -124,14 +256,25 @@
 
 .overlay-sidebar form label {
     font-size: 14px;
+    opacity: 0.6;
+    margin: 15px 0 10px;
 }
 
 .overlay-sidebar textarea {
     width: 100%;
     height: 200px;
-    margin: 10px 0;
     font-size: 14px;
     resize: none;
+}
+
+.overlay-sidebar__checkbox {
+    display: flex;
+    align-items: flex-start;
+    margin: 15px 0;
+}
+
+.overlay-sidebar__checkbox label {
+    margin: 0!important;
 }
 
 .overlay-menu {
@@ -143,8 +286,15 @@
     justify-content: space-between;
     align-items: center;
     background: white;
+    padding: 5px;
+    font-size: 18px;
     z-index: 9999;
     border: 1px solid #000;
+    transition: .2s ease-in;
+}
+
+.overlay-menu__hidden {
+    top: -55px;
 }
 
 .overlay-block-popup {
@@ -157,15 +307,17 @@
     border-radius: 10px;
     padding: 20px;
     color: black;
-    z-index: 9999;
     max-height: 420px;
     overflow-y: scroll;
     scrollbar-width: none;
-    display: none;
+    opacity: 0;
+    z-index: -1;
+    transition: .2s linear;
 }
 
 .overlay-block-popup_active {
-    display: inline-block;
+    opacity: 1;
+    z-index: 9999;
 }
 
 .overlay-block-popup__close {
@@ -196,4 +348,21 @@
     width: 100%;
     resize: none;
     height: 100px;
+}
+
+.overlay-popup-overlay {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    opacity: 0;
+    background: rgba(0, 0, 0, 0.4);
+    transition: .2s linear;
+}
+
+.overlay-popup-overlay__active {
+    z-index: 998;
+    opacity: 1;
 }
