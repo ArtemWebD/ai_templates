@@ -1,7 +1,7 @@
 /node_modules
 .env
-.gitignore
 gpt_history.json
+gpt_meta_history.json
 /static/ready
 /static/templates
 /static/sites
