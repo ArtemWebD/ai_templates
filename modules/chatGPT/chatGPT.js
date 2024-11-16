@@ -44,13 +44,14 @@ export default class ChatGPT {
     }
 
     async __writeHistory(text, role, historyFile) {
-        const pathFile = path.join(path.resolve(), historyFile);
-        const file = await fs.readFile(pathFile, { encoding: "utf8" });
-        const data = JSON.parse(file);
+        // const pathFile = path.join(path.resolve(), historyFile);
+        // const file = await fs.readFile(pathFile, { encoding: "utf8" });
+        // const data = JSON.parse(file);
 
-        data.push({ "role": role, "content": text });
-        await fs.writeFile(pathFile, JSON.stringify(data));
+        // data.push({ "role": role, "content": text });
+        // await fs.writeFile(pathFile, JSON.stringify(data));
 
-        return data;
+        // return data;
+        return { "role": role, "content": text }
     }
 }
