@@ -4,10 +4,13 @@ import jsdom from "jsdom";
 import ChatGPT from "../chatGPT/chatGPT.js";
 import DOM from "../DOM/DOM.js";
 import Zip from "../zip/zip.js";
+import * as crypto from "crypto";
+import ImageManager from "../imageManager/imageManager.js";
 
 export default (app, upload) => {
     const dom = new DOM();
     const zip = new Zip();
+    const imageManager = new ImageManager();
 
     app.post("/upload", upload.single("site"), async (req, res) => {
         try {
@@ -84,6 +87,8 @@ export default (app, upload) => {
 
             const htmlFile = await fs.readFile(templatePath + "/index.html");
             const htmlString = dom.removeOverlayElements(htmlFile);
+
+            await imageManager.removeUnusableImages(templatePath + "/");
 
             await fs.writeFile(templatePath + "/index.html", htmlString);
 
@@ -221,6 +226,25 @@ export default (app, upload) => {
             }
 
             res.status(200).send(JSON.stringify(response));
+        } catch (error) {
+            console.log(error);
+            res.status(500).send();
+        }
+    });
+
+    app.post("/image", upload.single("image"), async (req, res) => {
+        try {
+            const { siteTitle } = req.body;
+            const file = req.file;
+
+            const directoryPath = path.resolve() + "/static/sites/" + siteTitle + "/";
+            const directoryName = "overlay-images/";
+
+            const filename = await imageManager.writeImage(directoryPath + directoryName, path.extname(file.originalname), file.buffer);
+
+            const relativePath = directoryName + filename;
+
+            res.status(200).send(relativePath);
         } catch (error) {
             console.log(error);
             res.status(500).send();
