@@ -126,30 +126,24 @@ export default (app, upload) => {
                 const pathPrompt = path.resolve() + "/prompts/unique.txt";
                 const promptFile = await fs.readFile(pathPrompt, { encoding: "utf8" });
                 gptPrompt = promptFile;
-            } else {
-                gptPrompt = prompt 
-                    + "\nВозвращай только запрашиваемый контент, без каких-либо комментариев или текста\n"
-                    + "\nОтвет должен содержать HTML код исходного блока с изменениями\n"
-                    + "\nПредоставленный контент будет автоматически опубликован на моем сайте\n";
             }
+
+            gptPrompt = prompt
+                + "\nДействуй как контент-райтер, а не как виртуальный ассистент" 
+                + "\nВозвращай только запрашиваемый контент, без каких-либо комментариев или текста"
+                + "\nОтвет должен содержать текст с изменениями для каждой строки, но размер результата не должен сильно отличаться от исходного"
+                + "\nКоличество возвращаемых строк должно быть таким же, как в запросе, не считая условий"
+                + "\nПредоставленный контент будет автоматически опубликован на моем сайте";
 
             if (language) {
-                gptPrompt += "\nЯзык ответа: " + language + "\n";
+                gptPrompt += "\nЯзык ответа: " + language;
             }
 
-            gptPrompt += text;
+            gptPrompt += ":\n" + text;
 
             const response = await chatGPT.createUniquePrompt(gptPrompt);
 
-            const { JSDOM } = jsdom;
-            const dom = new JSDOM(response);
-            let serialized = "";
-
-            for (let i = 0; i < dom.window.document.body.children.length; i++) {
-                serialized += dom.window.document.body.children.item(i).innerHTML;
-            }
-
-            res.status(200).send(serialized);
+            res.status(200).send(response);
         } catch (error) {
             console.log(error);
             res.status(500).send("Error connection with AI");

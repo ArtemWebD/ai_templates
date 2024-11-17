@@ -37,7 +37,7 @@ export default class ChatGPT {
             model: 'chatgpt-4o-latest',
         });
         const answer = response.choices[0].message.content;
-        console.log(response.usage.total_tokens);
+        console.log("TOTAL: " + response.usage.total_tokens);
         await this.__writeHistory(answer, "assistant", historyFile);
 
         return answer;

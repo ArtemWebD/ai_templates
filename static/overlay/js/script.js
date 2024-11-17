@@ -518,7 +518,12 @@ class Sidebar {
     }
 
     async __uniqueOneSection(section, prompt, language) {
-        const text = section.outerHTML;
+        const textNodesArray = this.__getAllTextNodes(section);
+        const textNodesContent = textNodesArray.reduce((acc, value) => {
+            acc += value.textContent + "\n";
+
+            return acc;
+        }, "");
 
         const customFetch = new CustomFetch();
 
@@ -527,7 +532,7 @@ class Sidebar {
             headers: {
                 "Content-type": "application/json",
             },
-            body: JSON.stringify({ text, prompt, language }),
+            body: JSON.stringify({ text: textNodesContent, prompt, language }),
         }, "Блок успешно уникализирован", "В процессе уникализации произошла ошибка");
 
         if (!response) {
@@ -535,8 +540,30 @@ class Sidebar {
         }
         
         const result = await response.text();
+        const resultArray = result.split("\n")
+            .map((value) => value.trim())
+            .filter((element) => element && element.length !== 0);
+        
+        textNodesArray.forEach((value, i) => {
+            const newNode = document.createTextNode(resultArray[i]);
+            value.replaceWith(newNode);
+        });
+    }
 
-        section.innerHTML = result;
+    __getAllTextNodes(element) {
+        const textNodes = [];
+        let node;
+
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+
+        while (node = walker.nextNode()) {
+            // Проверка на пустой узел.
+            if (node.nodeValue.trim() !== "") {
+                textNodes.push(node);
+            }
+        }
+
+        return textNodes;
     }
 
     async __setDefaultPrompt() {
