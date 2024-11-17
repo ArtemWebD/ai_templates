@@ -504,23 +504,22 @@ class Sidebar {
         }
 
         const language = languageInput.value.trim();
+        let sections = [section];
 
-        if (!isAllBlocks.checked) {
-            await this.__uniqueOneSection(section, prompt, language);
-            return;
+        if (isAllBlocks.checked) {
+            sections = Array.from(document.querySelectorAll("section"));
         }
 
-        const sections = Array.from(document.querySelectorAll("section"));
-
-        for (let i = 0; i < sections.length; i++) {
-            await this.__uniqueOneSection(sections[i], prompt, language);
-        }
+        await this.__uniqueOneSection(sections, prompt, language);
     }
 
-    async __uniqueOneSection(section, prompt, language) {
-        const textNodesArray = this.__getAllTextNodes(section);
+    async __uniqueOneSection(sections, prompt, language) {
+        const textNodesArray = [];
+
+        sections.forEach((el) => textNodesArray.push(...this.__getAllTextNodes(el)));
+        
         const textNodesContent = textNodesArray.reduce((acc, value) => {
-            acc += value.textContent + "\n";
+            acc += value.textContent.trim() + "\n";
 
             return acc;
         }, "");
@@ -551,28 +550,25 @@ class Sidebar {
     }
 
     __getAllTextNodes(element) {
+        const walker = document.createTreeWalker(
+            element,
+            NodeFilter.SHOW_TEXT,
+            {
+                acceptNode: node => {
+                const parent = node.parentNode;
+                return parent.tagName !== 'STYLE' && parent.tagName !== 'SCRIPT' ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+                }
+            }
+        );
+    
         const textNodes = [];
-        let node;
-
-        const filter = {
-            acceptNode: function(node) {
-            // Исключаем узлы типа Node.ELEMENT_NODE, которые являются style или script
-            if (node.nodeType === Node.ELEMENT_NODE && (node.tagName === 'STYLE' || node.tagName === 'SCRIPT')) {
-                return NodeFilter.FILTER_REJECT; // Отклоняем узел
-            }
-            // Для всех остальных узлов, кроме текстовых (Node.TEXT_NODE) возвращаем NodeFilter.FILTER_SKIP
-            // Это необходимо, чтобы TreeWalker не заходил в дочерние элементы ненужных узлов
-            return node.nodeType === Node.TEXT_NODE ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP; 
-            }
-        };
-        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, filter, false);
-        
-        while (node = walker.nextNode()) {
-            if (node.nodeValue.trim() !== "") {
-                textNodes.push(node);
+        let currentNode;
+        while (currentNode = walker.nextNode()) {
+            // Проверка на пустой узел.
+            if (currentNode.nodeValue.trim() !== "") {
+                textNodes.push(currentNode);
             }
         }
-        
         return textNodes;
     }
 
