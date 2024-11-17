@@ -554,15 +554,25 @@ class Sidebar {
         const textNodes = [];
         let node;
 
-        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
-
+        const filter = {
+            acceptNode: function(node) {
+            // Исключаем узлы типа Node.ELEMENT_NODE, которые являются style или script
+            if (node.nodeType === Node.ELEMENT_NODE && (node.tagName === 'STYLE' || node.tagName === 'SCRIPT')) {
+                return NodeFilter.FILTER_REJECT; // Отклоняем узел
+            }
+            // Для всех остальных узлов, кроме текстовых (Node.TEXT_NODE) возвращаем NodeFilter.FILTER_SKIP
+            // Это необходимо, чтобы TreeWalker не заходил в дочерние элементы ненужных узлов
+            return node.nodeType === Node.TEXT_NODE ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP; 
+            }
+        };
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, filter, false);
+        
         while (node = walker.nextNode()) {
-            // Проверка на пустой узел.
             if (node.nodeValue.trim() !== "") {
                 textNodes.push(node);
             }
         }
-
+        
         return textNodes;
     }
 
