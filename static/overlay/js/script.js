@@ -511,6 +511,7 @@ class Sidebar {
         }
 
         await this.__uniqueOneSection(sections, prompt, language);
+        await this.__uniqueAltAttr(sections, prompt, language);
     }
 
     async __uniqueOneSection(sections, prompt, language) {
@@ -549,6 +550,44 @@ class Sidebar {
         });
     }
 
+    async __uniqueAltAttr(sections, prompt, language) {
+        //Array of img elements
+        const images = [];
+
+        sections.forEach((el) => images.push(...this.__getAllImgElements(el)));
+
+        //Array of alt attributes content
+        const imagesContent = images.reduce((acc, value) => {
+            acc += value.alt.trim() + "\n";
+
+            return acc;
+        }, "");
+
+        const customFetch = new CustomFetch();
+
+        const response = await customFetch.fetch(`http://${host}/unique`, {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json",
+            },
+            body: JSON.stringify({ text: imagesContent, prompt, language }),
+        }, null, "В процессе уникализации произошла ошибка");
+
+        if (!response) {
+            return;
+        }
+        
+        //String result to array
+        const result = await response.text();
+        const resultArray = result.split("\n")
+            .map((value) => value.trim())
+            .filter((element) => element && element.length !== 0);
+        
+        images.forEach((value, i) => {
+            value.alt = resultArray[i];
+        });
+    }
+
     __getAllTextNodes(element) {
         const walker = document.createTreeWalker(
             element,
@@ -570,6 +609,12 @@ class Sidebar {
             }
         }
         return textNodes;
+    }
+
+    __getAllImgElements(element) {
+        const images = Array.from(element.querySelectorAll("img"));
+        //Return array of images without element with empty alt attr
+        return images.filter((el) => el.alt);
     }
 
     async __setDefaultPrompt() {
