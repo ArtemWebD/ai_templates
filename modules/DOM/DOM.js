@@ -1,6 +1,6 @@
 import jsdom from "jsdom";
 
-export default class DOM {
+class DOM {
     addOverlayScripts(file, host) {
         const { JSDOM } = jsdom;
         const dom = new JSDOM(file);
@@ -9,14 +9,26 @@ export default class DOM {
         script.src = `http://${host}/static/overlay/js/script.js`;
         script.classList.add("overlay-script");
         script.defer = true;
+        script.type = "module";
 
-        const style = dom.window.document.createElement("link");
-        style.href = `http://${host}/static/overlay/css/style.css`;
-        style.rel = "stylesheet";
-        style.classList.add("overlay-script");
+        const axiosScript = dom.window.document.createElement("script");
+        axiosScript.src = `https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js`;
+        axiosScript.classList.add("overlay-script");
+        axiosScript.defer = true;
 
+        const styles = ["modules/alert/alert.css", "modules/loader/loader.css", "overlay/css/style.css"];
+
+        styles.forEach((link) => {
+            const style = dom.window.document.createElement("link");
+            style.href = `http://${host}/static/${link}`;
+            style.rel = "stylesheet";
+            style.classList.add("overlay-script");
+
+            dom.window.document.body.append(style);
+        });
+
+        dom.window.document.body.append(axiosScript);
         dom.window.document.body.append(script);
-        dom.window.document.body.append(style);
 
         return dom.serialize();
     }
@@ -40,6 +52,21 @@ export default class DOM {
         return dom.serialize();
     }
 
+    clean(file) {
+        const { JSDOM } = jsdom;
+        const dom = new JSDOM(file);
+
+        dom.window.document.querySelectorAll(".overlay-element").forEach((el) => {
+            el.remove();
+        });
+
+        dom.window.document.querySelectorAll('[contenteditable="true"]').forEach((el) => {
+            el.removeAttribute("contenteditable");
+        });
+
+        return dom.serialize();
+    }
+
     getAllImgPaths(file) {
         const { JSDOM } = jsdom;
         const dom = new JSDOM(file);
@@ -49,3 +76,5 @@ export default class DOM {
         return images.map((element) => element.src);
     }
 }
+
+export default new DOM();

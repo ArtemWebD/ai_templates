@@ -1,76 +1,6 @@
+import { APIRequest } from "../../modules/api/api.js";
+
 const host = window.location.host;
-
-class CustomFetch {
-    __alert = new Alert();
-
-    async fetch(url, body, successMessage = "", errorMessage = "") {
-        const response = await fetch(url, body);
-
-        if (!response.ok) {
-            if (errorMessage) {
-                this.__alert.show(errorMessage, "danger");
-            }
-
-            return;
-        }
-
-        if (successMessage) {
-            this.__alert.show(successMessage, "success");
-        }
-
-        return response;
-    }
-}
-
-class Alert {
-    show(message, type) {
-        if (type !== "success" && type !== "danger") {
-            return;
-        }
-
-        const container = document.createElement("div");
-        container.classList.add("overlay-alert", `overlay-alert_${type}`, "overlay-element");
-
-        container.innerHTML = `
-            <span class="overlay-alert__message">${message}</span>
-        `;
-
-        document.body.append(container);
-
-        this.__hideHandler(container);
-    }
-
-    __hideHandler(element) {
-        const styles = getComputedStyle(element);
-        const time = (parseFloat(styles.animationDuration) + parseFloat(styles.animationDelay)) * 1000;
-
-        setTimeout(() => element.remove(), time);
-    }
-}
-
-class Loader {
-    __element;
-
-    show() {
-        const container = document.createElement("div");
-        container.classList.add("overlay-loader", "overlay-element");
-
-        container.innerHTML = `
-            <span class="overlay-loader__element"></span>
-        `;
-
-        document.body.append(container);
-        this.__element = container;
-    }
-
-    hide() {
-        if (!this.__element) {
-            return;
-        }
-
-        this.__element.remove();
-    }
-}
 
 class Popup {
     __formContainer;
@@ -144,6 +74,8 @@ class Metatags extends Popup {
     __descriptionEl;
     __keywordsEl;
 
+    __apiRequest = new APIRequest();
+
     static __instance;
 
     static getInstance() {
@@ -207,7 +139,6 @@ class Metatags extends Popup {
             e.preventDefault();
 
             const button = form.querySelector("button");
-            const loader = new Loader();
 
             const title = form.querySelector("#meta-title");
             const description = form.querySelector("#meta-description");
@@ -217,32 +148,26 @@ class Metatags extends Popup {
                 return;
             }
 
-            const body = {
+            const data = {
                 title: title.value,
                 description: description.value,
                 keywords: keywords.value,
             };
 
             button.disabled = true;
-            loader.show();
 
-            const customFetch = new CustomFetch();
-
-            const response = await customFetch.fetch(`http://${host}/metatags`, {
+            const response = await this.__apiRequest.createRequest({
                 method: "POST",
-                body: JSON.stringify(body),
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            }, "Мета тэги успешно изменены", "Произошла непредвиденная ошибка, попробуйте отправить запрос снова");
+                data,
+                url: `/uniqualization/metatags`
+            }, "Мета тэги успешно изменены");
 
             if (!response) {
                 button.disabled = false;
-                loader.hide();
                 return;
             }
 
-            const json = await response.json();
+            const json = response.data.result;
 
             if (json.title) {
                 document.querySelector("title").outerHTML = json.title;
@@ -257,7 +182,6 @@ class Metatags extends Popup {
             }
 
             button.disabled = false;
-            loader.hide();
         }
     }
 }
@@ -265,6 +189,8 @@ class Metatags extends Popup {
 class Images extends Popup {
     __formContainer;
     __img;
+
+    __apiRequest = new APIRequest();
 
     static __instance;
 
@@ -330,36 +256,31 @@ class Images extends Popup {
             }
 
             const urlParams = new URLSearchParams(window.location.search);
-            const siteTitle = urlParams.get("title");
+            const id = urlParams.get("id");
 
             const formData = new FormData();
 
-            formData.append("siteTitle", siteTitle);
+            formData.append("id", id);
             formData.append("image", imageFile.files[0]);
 
             const button = form.querySelector("button");
-            const loader = new Loader();
 
             button.disabled = true;
-            loader.show();
 
-            const customFetch = new CustomFetch();
-
-            const response = await customFetch.fetch(`http://${host}/image`, {
+            const response = await this.__apiRequest.createRequest({
                 method: "POST",
-                body: formData
-            }, "Картинка успешно изменена", "При загрузке картинки произошла ошибка, попробуйте снова");
+                url: "/uniqualization/image",
+                data: formData
+            }, "Картинка успешно изменена");
 
             if (!response) {
                 button.disabled = false;
-                loader.hide()
                 return;
             }
 
-            this.__img.src = await response.text();
+            this.__img.src = await response.data.imagePath;
 
             button.disabled = false;
-            loader.hide();
 
             this.close();
         }
@@ -370,6 +291,8 @@ class Sidebar {
     __element;
 
     __popupOverlay = PopupOverlay.getInstance();
+
+    __apiRequest = new APIRequest();
 
     static __instance;
 
@@ -471,15 +394,12 @@ class Sidebar {
             event.preventDefault();
 
             const button = unique.querySelector("button");
-            const loader = new Loader();
 
             button.disabled = true;
-            loader.show();
 
             await this.__uniqueBlock(section);
 
             button.disabled = false;
-            loader.hide();
         }
 
         close.onclick = () => {
@@ -504,42 +424,45 @@ class Sidebar {
         }
 
         const language = languageInput.value.trim();
-        let sections = [section];
 
         if (isAllBlocks.checked) {
-            sections = Array.from(document.querySelectorAll("section"));
+            const sections = Array.from(document.querySelectorAll("section"));
+
+            for (let i = 0; i < sections.length; i++) {
+                await this.__uniqueOneSection(sections[i], prompt, language);
+                await this.__uniqueAltAttr(sections[i], prompt, language);
+            }
+
+            return;
         }
 
-        await this.__uniqueOneSection(sections, prompt, language);
-        await this.__uniqueAltAttr(sections, prompt, language);
+        await this.__uniqueOneSection(section, prompt, language);
+        await this.__uniqueAltAttr(section, prompt, language);
     }
 
-    async __uniqueOneSection(sections, prompt, language) {
+    async __uniqueOneSection(section, prompt, language) {
         const textNodesArray = [];
 
-        sections.forEach((el) => textNodesArray.push(...this.__getAllTextNodes(el)));
+        textNodesArray.push(...this.__getAllTextNodes(section));
         
         const textNodesContent = textNodesArray.reduce((acc, value) => {
-            acc += value.textContent.trim() + "\n";
+            //Удаление двойных пробелов
+            acc += value.textContent.replace(/\s{2,}/g, ' ').trim() + "\n";
 
             return acc;
         }, "");
 
-        const customFetch = new CustomFetch();
-
-        const response = await customFetch.fetch(`http://${host}/unique`, {
+        const response = await this.__apiRequest.createRequest({
             method: "POST",
-            headers: {
-                "Content-type": "application/json",
-            },
-            body: JSON.stringify({ text: textNodesContent, prompt, language }),
-        }, "Блок успешно уникализирован", "В процессе уникализации произошла ошибка");
+            url: "/uniqualization/unique",
+            data: { text: textNodesContent, prompt, language }
+        }, "Блок успешно уникализирован");
 
         if (!response) {
             return;
         }
         
-        const result = await response.text();
+        const result = await response.data.result;
         const resultArray = result.split("\n")
             .map((value) => value.trim())
             .filter((element) => element && element.length !== 0);
@@ -550,11 +473,16 @@ class Sidebar {
         });
     }
 
-    async __uniqueAltAttr(sections, prompt, language) {
+    async __uniqueAltAttr(section, prompt, language) {
         //Array of img elements
         const images = [];
+        const elements = this.__getAllImgElements(section);
 
-        sections.forEach((el) => images.push(...this.__getAllImgElements(el)));
+        elements.forEach((el) => {
+            if (el.alt.trim()) {
+                images.push(el);
+            }
+        });
 
         //Array of alt attributes content
         const imagesContent = images.reduce((acc, value) => {
@@ -563,22 +491,18 @@ class Sidebar {
             return acc;
         }, "");
 
-        const customFetch = new CustomFetch();
-
-        const response = await customFetch.fetch(`http://${host}/unique`, {
+        const response = await this.__apiRequest.createRequest({
             method: "POST",
-            headers: {
-                "Content-type": "application/json",
-            },
-            body: JSON.stringify({ text: imagesContent, prompt, language }),
-        }, null, "В процессе уникализации произошла ошибка");
+            url: "/uniqualization/unique",
+            body: { text: imagesContent, prompt, language },
+        });
 
         if (!response) {
             return;
         }
         
         //String result to array
-        const result = await response.text();
+        const result = await response.data.result;
         const resultArray = result.split("\n")
             .map((value) => value.trim())
             .filter((element) => element && element.length !== 0);
@@ -619,13 +543,16 @@ class Sidebar {
 
     async __setDefaultPrompt() {
         const prompt = this.__element.querySelector("#prompt");
-        const response = await fetch(`http://${host}/unique`);
+        const response = await this.__apiRequest.createRequest({
+            url: "/uniqualization/unique",
+            method: "get"
+        });
 
-        if (!response.ok) {
+        if (!response) {
             return;
         }
 
-        prompt.value = await response.text();
+        prompt.value = await response.data.prompt;
     }
 }
 
@@ -758,6 +685,8 @@ class ContextMenu {
 class SaveMenu {
     __element;
 
+    __apiRequest = new APIRequest();
+
     static __instance;
 
     static getInstance() {
@@ -803,28 +732,20 @@ class SaveMenu {
         }
 
         saveButton.onclick = async () => {
-            const loader = new Loader();
-
-            loader.show();
             saveButton.disabled = true;
 
             const urlParams = new URLSearchParams(window.location.search);
-            const title = urlParams.get("title");
+            const id = urlParams.get("id");
             const html = document.documentElement.outerHTML;
-            const body = JSON.stringify({ title, html });
+            const data = { id, html };
 
-            const customFetch = new CustomFetch();
-
-            await customFetch.fetch(`http://${host}/save`, {
+            await this.__apiRequest.createRequest({
+                url: "/site/save",
                 method: "POST",
-                headers: {
-                    "Content-type": "application/json",
-                },
-                body,
-            }, "Проект успешно сохранен", "При сохранении проекта произошла ошибка, попробуйте повторить попытку позже");
+                data,
+            }, "Проект успешно сохранен");
 
             saveButton.disabled = false;
-            loader.hide();
         }
     }
 
@@ -845,7 +766,7 @@ class SaveMenu {
     }
 }
 
-enableContentEditable = () => {
+const enableContentEditable = () => {
     const elements = document.body.children;
     
     for (let i = 0; i < elements.length; i++) {

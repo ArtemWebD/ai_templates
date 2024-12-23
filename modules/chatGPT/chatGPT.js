@@ -1,9 +1,7 @@
 import { OpenAI } from "openai";
 import { Agent } from "https";
-import fs from "fs/promises";
-import path from "path";
 
-export default class ChatGPT {
+class ChatGPT {
     static _instance;
     __openaiapi;
 
@@ -23,27 +21,48 @@ export default class ChatGPT {
     }
 
     async createUniquePrompt(text) {
-        return this.__createPrompt(text, "gpt_history.json");
+        const conditions = {
+            "role": "user",
+            "content": "Действуй как SEO-оптимизитор, а не как виртуальный ассистент" 
+            + "\nВозвращай только запрашиваемый контент, без каких-либо комментариев или текста"
+            + "\nОтвет должен содержать текст с изменениями для каждой строки"
+            + "\nОтвет не должен содержать лишних подписей по типу html,` и так далее"
+            + "\nКоличество возвращаемых строк должно быть таким же, как в запросе, не считая условий"
+            + "\nСпециальные символы по типу +, ; и так далее изменять не нужно"
+            + "\nЕсли строка пустая или входящие данные отсутствуют, верни исходную строку"
+            + "\nПредоставленный контент будет автоматически опубликован на моем сайте"
+        }
+
+        return this.__createPrompt(text, "gpt_history.json", conditions);
     }
 
     async createMetatagsPrompt(text) {
-        return this.__createPrompt(text, "gpt_meta_history.json");
+        const conditions = {
+            "role": "user",
+            "content": "Действуй как SEO-оптимизитор, а не как виртуальный ассистент"
+            + "\nВозвращай только запрашиваемый контент, без каких-либо комментариев, текста, подписей или символов"
+            + "\nОтвет не должен содержать лишних подписей по типу html,` и так далее"
+            + "\nОтвет должен содержать только HTML код запрашиваемого тэга"
+            + "\nПредоставленный контент будет автоматически опубликован на моем сайте"
+        }
+
+        return this.__createPrompt(text, "gpt_meta_history.json", conditions);
     }
 
-    async __createPrompt(text, historyFile) {
-        const messages = await this.__writeHistory(text, "user", historyFile);
+    async __createPrompt(text, historyFile, conditions) {
+        const messages = await this.__writeHistory(text, "user", conditions);
         const response = await this.__openaiapi.chat.completions.create({
             messages,
             model: 'chatgpt-4o-latest',
         });
         const answer = response.choices[0].message.content;
 
-        await this.__writeHistory(answer, "assistant", historyFile);
+        await this.__writeHistory(answer, "assistant", conditions);
 
         return answer;
     }
 
-    async __writeHistory(text, role, historyFile) {
+    async __writeHistory(text, role, conditions) {
         // const pathFile = path.join(path.resolve(), historyFile);
         // const file = await fs.readFile(pathFile, { encoding: "utf8" });
         // const data = JSON.parse(file);
@@ -52,6 +71,8 @@ export default class ChatGPT {
         // await fs.writeFile(pathFile, JSON.stringify(data));
 
         // return data;
-        return [{ "role": role, "content": text }];
+        return [conditions, { "role": role, "content": text }];
     }
 }
+
+export default ChatGPT.getInstance();

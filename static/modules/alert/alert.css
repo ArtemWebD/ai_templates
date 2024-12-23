@@ -1,0 +1,34 @@
+.overlay-alert {
+    width: 320px;
+    padding: 12px 20px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    z-index: 9999;
+    transform: translateX(-50%);
+    animation: fade 1s 5s forwards;
+}
+
+@keyframes fade {
+    0% {
+        opacity: 1;
+    }
+    
+    100% {
+        opacity: 0;
+    }
+}
+
+.overlay-alert_success {
+    color: #155724;
+    background: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.overlay-alert_danger {
+    color: #721c24;
+    background: #f8d7da;
+    border-color: #f5c6cb;
+}

@@ -2,14 +2,14 @@ import fs from "fs/promises";
 import * as crypto from "crypto";
 import DOM from "../DOM/DOM.js";
 
-export default class ImageManager {
+class ImageManager {
     async writeImage(directory, extension, buffer) {
         const filename = crypto.randomBytes(20).toString("hex") + extension;
 
         try {
             await fs.access(directory);
         } catch (error) {
-            await fs.mkdir(directory);
+            await fs.mkdir(directory, { recursive: true });
         }
 
         await fs.writeFile(directory + filename, buffer, { recursive: true });
@@ -51,3 +51,5 @@ export default class ImageManager {
         }
     }
 }
+
+export default new ImageManager();

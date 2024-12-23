@@ -1,7 +1,7 @@
 import path from "path";
 import AdmZip from "adm-zip";
 
-export default class Zip {
+class Zip {
     async unzip(file, filePath) {
         try {
             const zip = new AdmZip(file);
@@ -24,3 +24,5 @@ export default class Zip {
         }
     }
 }
+
+export default new Zip();
