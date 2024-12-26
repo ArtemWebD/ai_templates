@@ -16,7 +16,7 @@ class UniqualizationService {
             gptPrompt += "\nЯзык ответа: " + language;
         }
 
-        gptPrompt += ":\n" + text;
+        gptPrompt += ":\n" + JSON.stringify(text);
 
         const response = await chatGPT.createUniquePrompt(gptPrompt);
 

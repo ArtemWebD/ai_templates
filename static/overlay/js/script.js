@@ -429,15 +429,19 @@ class Sidebar {
             const sections = Array.from(document.querySelectorAll("section"));
 
             for (let i = 0; i < sections.length; i++) {
-                await this.__uniqueOneSection(sections[i], prompt, language);
-                await this.__uniqueAltAttr(sections[i], prompt, language);
+                if (!sections[i].classList.contains("no-unique")) {
+                    await this.__uniqueOneSection(sections[i], prompt, language);
+                    await this.__uniqueAltAttr(sections[i], prompt, language);
+                }
             }
 
             return;
         }
 
-        await this.__uniqueOneSection(section, prompt, language);
-        await this.__uniqueAltAttr(section, prompt, language);
+        if (!section.classList.contains("no-unique")) {
+            await this.__uniqueOneSection(section, prompt, language);
+            await this.__uniqueAltAttr(section, prompt, language);
+        }
     }
 
     async __uniqueOneSection(section, prompt, language) {
@@ -445,12 +449,12 @@ class Sidebar {
 
         textNodesArray.push(...this.__getAllTextNodes(section));
         
-        const textNodesContent = textNodesArray.reduce((acc, value) => {
+        const textNodesContent = textNodesArray.reduce((acc, value, i) => {
             //Удаление двойных пробелов
-            acc += value.textContent.replace(/\s{2,}/g, ' ').trim() + "\n";
+            acc[i] = value.textContent.replace(/\s{2,}/g, ' ').trim();
 
             return acc;
-        }, "");
+        }, {});
 
         const response = await this.__apiRequest.createRequest({
             method: "POST",
@@ -461,15 +465,14 @@ class Sidebar {
         if (!response) {
             return;
         }
-        
-        const result = await response.data.result;
-        const resultArray = result.split("\n")
-            .map((value) => value.trim())
-            .filter((element) => element && element.length !== 0);
-        
-        textNodesArray.forEach((value, i) => {
-            const newNode = document.createTextNode(resultArray[i]);
-            value.replaceWith(newNode);
+
+        const result = JSON.parse(response.data.result);
+
+        Object.keys(result).forEach((key) => {
+            if (textNodesArray[+key]) {
+                const newNode = document.createTextNode(result[key]);
+                textNodesArray[+key].replaceWith(newNode);
+            }
         });
     }
 
@@ -479,38 +482,109 @@ class Sidebar {
         const elements = this.__getAllImgElements(section);
 
         elements.forEach((el) => {
-            if (el.alt.trim()) {
+            if (el.alt.trim().length) {
                 images.push(el);
             }
         });
 
-        //Array of alt attributes content
-        const imagesContent = images.reduce((acc, value) => {
-            acc += value.alt.trim() + "\n";
+        //Object of alt attributes content
+        const imagesContent = images.reduce((acc, value, i) => {
+            acc[i] = value.alt;
 
             return acc;
-        }, "");
+        }, {});
 
         const response = await this.__apiRequest.createRequest({
             method: "POST",
             url: "/uniqualization/unique",
-            body: { text: imagesContent, prompt, language },
+            data: { text: imagesContent, prompt, language },
         });
 
         if (!response) {
             return;
         }
         
-        //String result to array
-        const result = await response.data.result;
-        const resultArray = result.split("\n")
-            .map((value) => value.trim())
-            .filter((element) => element && element.length !== 0);
-        
-        images.forEach((value, i) => {
-            value.alt = resultArray[i];
+        const result = JSON.parse(response.data.result);
+
+        Object.keys(result).forEach((key) => {
+            if (images[+key]) {
+                images[+key].alt = result[key];
+            }
         });
     }
+
+    __getSectionTextNodes(sectionElement) {
+        const result = {};
+        
+        // Получаем все элементы внутри section (включая текстовые узлы)
+        const allElements = sectionElement.querySelectorAll('*');
+    
+        allElements.forEach(element => {
+            // Пропускаем текстовые ноды
+            if(element.nodeType === Node.TEXT_NODE) {
+                return
+            }
+            
+            const selector = this.__getElementSelector(element);
+            
+            let textContent = '';
+            
+            // Собираем текст только прямых потомков, без текста дочерних элементов
+            Array.from(element.childNodes).forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    textContent += node.textContent;
+                }
+            });
+            
+            
+            
+        //   Удаляем лишние пробелы и переводы строк
+            textContent = textContent.trim();    
+    
+            if (textContent) {
+                result[selector] = textContent;
+            }
+        });
+        
+    
+        return result;
+    }
+
+    __getElementSelector(element) {
+        if (!element || !(element instanceof Element)) {
+          return "";
+        }
+      
+        let selector = element.tagName.toLowerCase();
+      
+        if (element.id) {
+          selector += `#${element.id}`;
+        }
+      
+        if (element.className) {
+          selector += `.${Array.from(element.classList).join(".")}`;
+        }
+      
+        
+        // Ищем родительские элементы и строим селектор
+        let parent = element.parentElement;
+      
+          while (parent && parent.tagName.toLowerCase() !== 'section') {
+              let parentSelector = parent.tagName.toLowerCase();
+              if (parent.id) {
+                  parentSelector += `#${parent.id}`;
+                }
+      
+                if (parent.className) {
+                  parentSelector += `.${Array.from(parent.classList).join(".")}`;
+                }
+               selector = `${parentSelector} > ${selector}`
+              parent = parent.parentElement
+        }
+       
+      
+        return selector;
+      }
 
     __getAllTextNodes(element) {
         const walker = document.createTreeWalker(
@@ -558,6 +632,7 @@ class Sidebar {
 
 class ContextMenu {
     __element;
+    __switchElement;
 
     static __instance;
 
@@ -577,10 +652,12 @@ class ContextMenu {
                 <li data-target="remove">Удалить блок</li>
                 <li data-target="sidebar">Настройка блока</li>
                 <li data-target="metatags">Сменить мета тэги</li>
+                <li class="overlay-popup__switch" data-target="switch"></li>
             </ul>`;
         
         document.body.append(container);
         this.__element = container;
+        this.__switchElement = this.__element.querySelector(".overlay-popup__switch");
 
         this.__elementCloseHandler();
         this.__sectionsHandler();
@@ -600,6 +677,8 @@ class ContextMenu {
         sections.forEach((section) => {
             section.oncontextmenu = (event) => {
                 event.preventDefault();
+
+                this.__switchElement.innerText = section.classList.contains("no-unique") ? "Включить уникализацию" : "Отключить уникализацию";
 
                 this.open();
     
@@ -629,6 +708,9 @@ class ContextMenu {
                     case "metatags":
                         const metatags = Metatags.getInstance();
                         metatags.open();
+                        break;
+                    case "switch":
+                        section.classList.toggle("no-unique");
                         break;
                 }
             }
