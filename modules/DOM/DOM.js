@@ -49,6 +49,10 @@ class DOM {
             el.removeAttribute("contenteditable");
         });
 
+        dom.window.document.querySelectorAll(".no-unique").forEach((el) => {
+            el.classList.remove("no-unique");
+        });
+
         return dom.serialize();
     }
 
