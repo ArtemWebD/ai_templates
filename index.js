@@ -38,7 +38,7 @@ app.use(errorMiddleware);
 try {
     await sequelize.authenticate({ logging: false });
     console.log('Connection with database has been established successfully.');
-    await sequelize.sync({ force: false, alter: true });
+    await sequelize.sync({ force: false, alter: false });
 } catch (error) {
     console.error('Unable to connect to the database:', error);
 }
