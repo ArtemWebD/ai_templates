@@ -54,7 +54,7 @@ class SiteService {
         const htmlFile = await fs.readFile(sitePath + "/index.html");
 
         //Remove server scripts and unusable images
-        const htmlString = dom.removeOverlayElements(htmlFile);
+        const htmlString = DOM.removeOverlayElements(htmlFile);
         await imageManager.removeUnusableImages(sitePath + "/");
 
         //Write result

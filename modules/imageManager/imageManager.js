@@ -32,9 +32,7 @@ class ImageManager {
         const htmlPath = directory + "index.html";
         const htmlFile = await fs.readFile(htmlPath);
 
-        const dom = new DOM();
-
-        const imagesPath = dom.getAllImgPaths(htmlFile).reduce((acc, value) => {
+        const imagesPath = DOM.getAllImgPaths(htmlFile).reduce((acc, value) => {
             if (value.includes(dirname)) {
                 acc.push(value);
             }

@@ -784,17 +784,18 @@ class SaveMenu {
         container.classList.add("overlay-menu", "overlay-element");
 
         const urlParams = new URLSearchParams(window.location.search);
-        const title = urlParams.get("title");
+        const id = urlParams.get("id");
 
         container.innerHTML = `
             <button class="overlay-button" id="saveTemplate">Сохранить</button>
-            <a class="overlay-link" href="http://${host}/sites/${title}">Скачать</a>
+            <a class="overlay-link" id="downloadTemplate">Скачать</a>
         `;
 
         document.body.append(container);
         this.__element = container;
 
         this.__saveHandler();
+        this.__downloadHandler(id);
         this.__scrollHandler();
     }
 
@@ -804,6 +805,28 @@ class SaveMenu {
 
     show() {
         this.__element.classList.remove("overlay-menu__hidden");
+    }
+
+    __downloadHandler(id) {
+        const button = this.__element.querySelector("#downloadTemplate");
+
+        if (!button) {
+            return;
+        }
+
+        button.onclick = async (e) => {
+            e.preventDefault();
+
+            const response = await this.__apiRequest.createRequest({ url: `/site/${id}` });
+
+            if (!response) {
+                return;
+            }
+
+            const zipPath = response.data.zipPath;
+
+            window.location.href = `http://${window.location.host}${zipPath}`;
+        }
     }
 
     __saveHandler() {

@@ -38,9 +38,9 @@ class SiteController {
                 throw ApiError.BadRequest("Неверно указан шаблон");
             }
 
-            const zipPath = await cleanSite(user, id);
+            const zipPath = await siteService.cleanSite(user, id);
 
-            res.redirect(zipPath);
+            res.json({ zipPath });
         } catch (error) {
             next(error);
         }
