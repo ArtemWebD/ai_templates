@@ -42,4 +42,14 @@ export default class Authorization {
             return false;
         }
     }
+
+    async checkAdmin() {
+        const response = await this.__apiRequest.createRequest({ url: "/auth/admin", method: "get" });
+
+        if (!response) {
+            return false;
+        }
+
+        return response.data.isAdmin;
+    }
 }
