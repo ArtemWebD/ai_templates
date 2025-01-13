@@ -3,6 +3,8 @@ import Templates from "./templates.js";
 import Sites from "./sites.js";
 import SiteForm from "./siteForm.js";
 import Authorization from "../../modules/authorization/authorization.js";
+import Modal from "../../modules/modal/modal.js";
+import WhitePageForm from "./whitePageForm.js";
 
 const authorization = new Authorization();
 
@@ -27,4 +29,8 @@ const sites = new Sites();
 sites.getSites();
 
 const siteForm = new SiteForm(sites);
+
+new Modal();
+
+new WhitePageForm();
 
