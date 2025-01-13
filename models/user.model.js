@@ -32,6 +32,11 @@ UserModel.init(
                 len: [1, 30],
             },
         },
+        type: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: "user",
+        },
         password: {
             type: DataTypes.STRING,
             unique: false,
