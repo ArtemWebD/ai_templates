@@ -1,0 +1,75 @@
+textarea {
+    resize: none;
+    overflow-y: auto;
+}
+
+.navbar {
+    z-index: 99;
+}
+
+.templates .col {
+    width: 320px;
+    height: 340px;
+    position: relative;
+    overflow: hidden;
+    flex: none;
+}
+
+.white-page-templates .col {
+    width: 240px;
+    height: 260px;
+}
+
+.templates .col iframe {
+    transform: scale(.23);
+    transform-origin: top left;
+}
+
+.white-page-templates .col iframe {
+    transform: scale(.17);
+}
+
+.templates .templates__link, .templates .templates__delete, .templates .templates__edit, .templates .templates__select {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 31%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    opacity: 0;
+    border: 1px solid #000;
+    transition: .2s;
+}
+
+.templates .templates__link {
+    top: 0;
+    text-decoration: none;
+}
+
+.templates .templates__delete {
+    bottom: 0;
+    cursor: pointer;
+}
+
+.templates .templates__select {
+    top: 0;
+    cursor: pointer;
+    height: 100%;
+}
+
+.templates .template__selected .templates__select svg {
+    fill: rgb(30, 249, 34);
+}
+
+.templates .templates__edit {
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.templates .col:hover .templates__link, .templates .col:hover .templates__delete, .templates .col:hover .templates__edit, .templates .col:hover .templates__select {
+    background: rgba(0, 0, 0, .5);
+    opacity: 1;
+}
