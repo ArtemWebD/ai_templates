@@ -9,6 +9,8 @@ import { authorizationRouter } from "./modules/routes/authorization-router.js";
 import { siteRouter } from "./modules/routes/site-router.js";
 import { templateRouter } from "./modules/routes/template-router.js";
 import { uniqualizationRouter } from "./modules/routes/uniqualization-router.js";
+import { whitePageRouter } from "./modules/routes/white-page-router.js";
+import userService from "./modules/user/user.service.js";
 
 dotenv.config();
 
@@ -24,12 +26,15 @@ app.use(cors({
 
 //Static routes
 app.use("/static", express.static(path.resolve() + "/static"));
+
 app.use("/modules", express.static(path.resolve() + "/static/modules"));
+
 app.use("/", express.static(path.resolve() + "/static/main"));
 app.use("/authorization", express.static(path.resolve() + "/static/authorization"));
+app.use("/admin", express.static(path.resolve() + "/static/admin"));
 
 //Routes
-app.use("/api", authorizationRouter, siteRouter, templateRouter, uniqualizationRouter);
+app.use("/api", authorizationRouter, siteRouter, templateRouter, uniqualizationRouter, whitePageRouter);
 
 //Custom middlewares
 app.use(errorMiddleware);
@@ -38,7 +43,11 @@ app.use(errorMiddleware);
 try {
     await sequelize.authenticate({ logging: false });
     console.log('Connection with database has been established successfully.');
-    await sequelize.sync({ force: false, alter: false });
+    await sequelize.sync({ force: false, alter: true });
+
+    //Creating super user
+    await userService.createSuperUser();
+    console.log("Super user has been created successfully.");
 } catch (error) {
     console.error('Unable to connect to the database:', error);
 }
