@@ -32,7 +32,7 @@ class ChatGPT {
             + "\nПредоставленный контент будет автоматически опубликован на моем сайте"
         }
 
-        return this.__createPrompt(text, "gpt_history.json", conditions);
+        return this.__createPrompt(text, conditions);
     }
 
     async createMetatagsPrompt(text) {
@@ -45,32 +45,34 @@ class ChatGPT {
             + "\nПредоставленный контент будет автоматически опубликован на моем сайте"
         }
 
-        return this.__createPrompt(text, "gpt_meta_history.json", conditions);
+        return this.__createPrompt(text, conditions);
     }
 
-    async __createPrompt(text, historyFile, conditions) {
-        const messages = await this.__writeHistory(text, "user", conditions);
+    async createWhitePagePrompt(text, prompt) {
+        const conditions = {
+            "role": "user",
+            "content": "Действуй как SEO-оптимизитор, а не как виртуальный ассистент" 
+            + "\nВозвращай только запрашиваемый контент, без каких-либо комментариев или текста"
+            + "\nНапиши ответ на запрос значения ключа prompt в значение ключа value в соответствии с заданными условиями"
+            + "\nОтвет должен содержать только json с изменениями для ключа value, ключ prompt возвращать не нужно"
+            + "\nОтвет не должен содержать лишних подписей по типу html, json,` и так далее"
+            + "\nЕсли строка пустая или входящие данные отсутствуют, верни исходную строку"
+            + "\nПредоставленный контент будет автоматически опубликован на моем сайте"
+            + "\n" + prompt
+        }
+
+        return this.__createPrompt(text, conditions);
+    }
+
+    async __createPrompt(text, conditions) {
+        const messages = [conditions, { "role": "user", "content": text }];
         const response = await this.__openaiapi.chat.completions.create({
             messages,
             model: 'chatgpt-4o-latest',
         });
         const answer = response.choices[0].message.content;
 
-        await this.__writeHistory(answer, "assistant", conditions);
-
         return answer;
-    }
-
-    async __writeHistory(text, role, conditions) {
-        // const pathFile = path.join(path.resolve(), historyFile);
-        // const file = await fs.readFile(pathFile, { encoding: "utf8" });
-        // const data = JSON.parse(file);
-
-        // data.push({ "role": role, "content": text });
-        // await fs.writeFile(pathFile, JSON.stringify(data));
-
-        // return data;
-        return [conditions, { "role": role, "content": text }];
     }
 }
 
