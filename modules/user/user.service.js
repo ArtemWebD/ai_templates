@@ -51,6 +51,23 @@ class UserService {
         return this.__createResponseBody(user);
     }
 
+    async createSuperUser() {
+        const candidateEmail = await UserModel.findOne({ where: { email: process.env.SUPER_USER_EMAIL } });
+
+        if (candidateEmail) {
+            return;
+        }
+
+        const hashPassword = await bcrypt.hash(process.env.SUPER_USER_PASSWORD, 3);
+
+        await UserModel.create({ 
+            email: process.env.SUPER_USER_EMAIL,
+            name: process.env.SUPER_USER_NAME,
+            password: hashPassword,
+            type: "super",
+        });
+    }
+
     async __createResponseBody(user) {
         const userDto = new UserDto(user);
         const tokens = tokenService.generateTokens({ ...userDto });

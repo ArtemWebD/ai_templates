@@ -53,6 +53,22 @@ class UserController {
             next(error);
         }
     }
+
+    async checkAdmin(req, res, next) {
+        try {
+            const user = req.user;
+
+            let isSuper = true;
+
+            if (user.type !== "super") {
+                isSuper = false;
+            }
+
+            res.json({ isAdmin: isSuper });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new UserController();
