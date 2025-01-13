@@ -79,6 +79,19 @@ class DOM {
 
         return images.map((element) => element.src);
     }
+
+    writeElementChanges(file, changes) {
+        const { JSDOM } = jsdom;
+        const dom = new JSDOM(file);
+
+        changes.selectors.forEach((selector) => {
+           dom.window.document.querySelectorAll(selector).forEach((el) => {
+                el.innerHTML = changes.value;
+           });
+        });
+
+        return dom.serialize();
+    }
 }
 
 export default new DOM();
