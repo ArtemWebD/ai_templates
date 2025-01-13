@@ -16,7 +16,7 @@ class TokenService {
             tokenData.refreshToken = refreshToken;
             return tokenData.save();
         }
-        console.log(userId)
+
         return TokenModel.create({ userId, refreshToken });
     }
 
