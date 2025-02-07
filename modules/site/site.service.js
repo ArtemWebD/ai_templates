@@ -3,7 +3,7 @@ import fs from "fs/promises";
 import ApiError from "../exceptions/api-error.js";
 import templateService from "../template/template.service.js";
 import DOM from "../DOM/DOM.js";
-import SiteModel from "../../models/site.model.js";
+import { SiteModel } from "../../database.js";
 import SiteDto from "../../dto/site.dto.js";
 import zip from "../zip/zip.js";
 import imageManager from "../imageManager/imageManager.js";
@@ -28,7 +28,7 @@ class SiteService {
         const destionationHtmlPath = destinationPath + "/index.html";
 
         const htmlFile = await fs.readFile(destionationHtmlPath);
-        const updatedHtml = DOM.addOverlayScripts(htmlFile, host);
+        const updatedHtml = DOM.addOverlayScripts(htmlFile, process.env.CLIENT_URL);
 
         await fs.writeFile(destionationHtmlPath, updatedHtml);
 

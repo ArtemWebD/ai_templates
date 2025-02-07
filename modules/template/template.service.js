@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs/promises";
 import zip from "../zip/zip.js";
-import TemplateModel from "../../models/template.model.js";
+import { TemplateModel } from "../../database.js";
 import TemplateDto from "../../dto/template.dto.js";
 import ApiError from "../exceptions/api-error.js";
 

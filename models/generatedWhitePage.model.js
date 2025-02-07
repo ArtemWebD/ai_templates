@@ -1,45 +1,48 @@
 import { DataTypes, Model } from "sequelize";
 
 export default (sequelize) => {
-    class SiteModel extends Model {
+    class GeneratedWhitePageModel extends Model {
         static associate(models) {
-            SiteModel.belongsTo(models.UserModel);
-            SiteModel.belongsTo(models.TemplateModel);
+            GeneratedWhitePageModel.belongsTo(models.WhitePageModel, { foreignKey: "whitePageId", as: "whitePage" });
+            GeneratedWhitePageModel.belongsTo(models.UserModel, { foreignKey: "userId", as: "users" });
         }
     }
 
-    SiteModel.init(
+    GeneratedWhitePageModel.init(
         {
             id: {
                 type: DataTypes.INTEGER,
                 autoIncrement: true,
                 primaryKey: true,
             },
-            path: {
-                type: DataTypes.STRING,
+            jobId: {
+                type: DataTypes.INTEGER,
                 allowNull: false,
             },
             title: {
                 type: DataTypes.STRING,
                 allowNull: false,
-                validate: {
-                    len: [1, 30],
-                },
+            },
+            status: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
+            whitePageId: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                foreignKey: true,
             },
             userId: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
-            },
-            templateId: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
+                foreignKey: true,
             },
         },
         {
             sequelize,
-            modelName: "site",
+            modelName: "generatedWhitePage",
         }
     );
 
-    return SiteModel;
+    return GeneratedWhitePageModel;
 }

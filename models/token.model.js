@@ -1,30 +1,33 @@
 import { DataTypes, Model } from "sequelize";
-import { sequelize } from "../database.js";
 
-export default class TokenModel extends Model {
-    static associate(models) {
-        TokenModel.belongsTo(models.UserModel);
+export default (sequelize) => {
+    class TokenModel extends Model {
+        static associate(models) {
+            TokenModel.belongsTo(models.UserModel);
+        }
     }
-}
 
-TokenModel.init(
-    {
-        id: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true,
+    TokenModel.init(
+        {
+            id: {
+                type: DataTypes.INTEGER,
+                autoIncrement: true,
+                primaryKey: true,
+            },
+            refreshToken: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
+            userId: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
         },
-        refreshToken: {
-            type: DataTypes.STRING,
-            allowNull: false,
+        {
+            sequelize,
+            modelName: "token",
         },
-        userId: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-    },
-    {
-        sequelize,
-        modelName: "token",
-    },
-);
+    );
+
+    return TokenModel;
+}

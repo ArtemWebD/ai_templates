@@ -1,4 +1,4 @@
-import UserModel from "../../models/user.model.js";
+import { UserModel } from "../../database.js";
 import bcrypt from "bcrypt";
 import tokenService from "../token/token.service.js";
 import UserDto from "../../dto/user.dto.js";
@@ -20,7 +20,7 @@ class UserService {
 
     async login(email, password) {
         const user = await UserModel.findOne({ where: { email } });
-
+        
         if (!user) {
             throw ApiError.BadRequest("Пользователь с таким почтовым адресом не найден");
         }
@@ -57,7 +57,7 @@ class UserService {
         if (candidateEmail) {
             return;
         }
-
+        
         const hashPassword = await bcrypt.hash(process.env.SUPER_USER_PASSWORD, 3);
 
         await UserModel.create({ 

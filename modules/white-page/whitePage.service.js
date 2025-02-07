@@ -2,10 +2,12 @@ import path from "path";
 import fs from "fs/promises";
 import * as crypto from "crypto";
 import zip from "../zip/zip.js";
-import WhitePageModel from "../../models/whitePage.model.js";
+import { WhitePageModel } from "../../database.js";
 import WhitePageDto from "../../dto/whitePage.dto.js";
 import ApiError from "../exceptions/api-error.js";
-import chatGPT from "../chatGPT/chatGPT.js";
+import { whitePageQueue } from "../../bull.js";
+import generatedWhitePageService from "../generatedWhitePage/generatedWhitePage.service.js";
+import GeneratedWhitePageDto from "../../dto/generatedWhitePage.dto.js";
 import DOM from "../DOM/DOM.js";
 
 class WhitePageService {
@@ -14,6 +16,13 @@ class WhitePageService {
         const fullPath = path.resolve() + relativePath;
 
         await zip.unzip(file, fullPath);
+
+        const htmlPath = fullPath + "/index.html";
+        const htmlFile = await fs.readFile(htmlPath);
+
+        const html = DOM.addJsonEditor(htmlFile, process.env.CLIENT_URL);
+
+        await fs.writeFile(htmlPath, html);
         await WhitePageModel.create({ title, path: relativePath });
     }
 
@@ -36,7 +45,7 @@ class WhitePageService {
         await WhitePageModel.destroy({ where: { id } });
     }
 
-    async generateWhitePage(id, prompt) {
+    async generateWhitePage(id, prompt, userId) {
         //Check existing of template
         const whitePage = await WhitePageModel.findOne({ where: { id } });
 
@@ -44,40 +53,12 @@ class WhitePageService {
             throw ApiError.BadRequest("Указанный шаблон не найден");
         }
 
-        //Copy template's file to site's directory
-        const dirName = crypto.randomBytes(20).toString("hex");
-        const siteRelativePath = "/static/white-page_sites/" + crypto.randomBytes(20).toString("hex");
-        const sourcePath = path.resolve() + whitePage.path;
-        const destinationPath = path.resolve() + siteRelativePath;
+        const title = crypto.randomBytes(20).toString("hex");
+        
+        const job = await whitePageQueue.add({ prompt, whitePage, title });
+        const generatedWhitePage = await generatedWhitePageService.create(title, whitePage.id, userId, job.id);
 
-        await fs.cp(sourcePath, destinationPath, { recursive: true });
-
-        //Read json file and delete it
-        const jsonPath = destinationPath + "/prompt.json";
-        const jsonFile = await fs.readFile(jsonPath, { "encoding": "utf8" });
-
-        await fs.rm(jsonPath);
-
-        const promptArray = JSON.parse(jsonFile);
-
-        //Create prompts for chatGPT
-        for (const condition of promptArray) {
-            //Get response from chatGPT
-            const json = JSON.stringify({ prompt: condition.prompt });
-            const response = await chatGPT.createWhitePagePrompt(json, prompt);
-            const changes = { selectors: condition.selectors, value: JSON.parse(response).value };
-
-            //Change html elements and write
-            const htmlPath = destinationPath + "/index.html";
-            const html = await fs.readFile(htmlPath);
-            const resultHtml = DOM.writeElementChanges(html, changes);
-
-            await fs.writeFile(htmlPath, resultHtml);
-        }
-
-        await zip.zip(destinationPath, dirName);
-
-        return dirName + ".zip";
+        return new GeneratedWhitePageDto(generatedWhitePage);
     }
 
     async getJson(id) {
@@ -105,7 +86,7 @@ class WhitePageService {
             throw ApiError.BadRequest("Указанный шаблон не найден");
         }
 
-        return path.resolve() + whitePage.path + "/prompt.json";
+        return path.join(path.resolve(), whitePage.path, "prompt.json");
     }
 }
 
