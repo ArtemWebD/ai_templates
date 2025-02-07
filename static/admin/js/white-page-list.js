@@ -23,7 +23,7 @@ export default class WhitePageList {
         const templates = await this.__whitePage.getAll();
 
         const html = templates.reduce((acc, value) => {
-            const uri = encodeURI(`http://${window.location.host}${value.path}`);
+            const uri = encodeURI(`http://${window.location.host}${value.path}?id=${value.id}`);
             acc += `
                 <div class="col">
                     <h3>${value.title}</h3>
