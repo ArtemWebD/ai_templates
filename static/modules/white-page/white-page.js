@@ -41,12 +41,23 @@ export default class WhitePage {
     }
 
     async create(id, prompt) {
-        const response = await this.__apiRequest.createRequest({ url: "/white-page/create", method: "post", data: { id, prompt } });
+        const response = await this.__apiRequest.createRequest(
+            { url: "/white-page/create", method: "post", data: { id, prompt } },
+            "Ваш запрос успешно поставлен в очередь"
+        );
+
+        if (!response) {
+            return;
+        }
+    }
+
+    async getTasks() {
+        const response = await this.__apiRequest.createRequest({ url: "/generated-white-page", method: "get" });
 
         if (!response) {
             return;
         }
 
-        return response.data.zip;
+        return response.data.tasks;
     }
 }
