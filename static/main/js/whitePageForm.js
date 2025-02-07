@@ -28,10 +28,9 @@ export default class WhitePageForm {
                 return;
             }
 
-            const zip = await this.__whitePage.create(this.__id, input.value);
+            await this.__whitePage.create(this.__id, input.value);
 
             form.reset();
-            window.location.href = `/static/ready/${zip}`;
         }
     }
 
