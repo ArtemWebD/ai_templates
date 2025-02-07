@@ -1,7 +1,5 @@
 import { APIRequest } from "../../modules/api/api.js";
 
-const host = window.location.host;
-
 class Popup {
     __formContainer;
 
