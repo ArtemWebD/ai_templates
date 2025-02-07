@@ -44,10 +44,11 @@ class WhitePageController {
     async create(req, res, next) {
         try {
             const { id, prompt } = req.body;
+            const user = req.user;
 
-            const zip = await whitePageService.generateWhitePage(id, prompt);
+            const task = await whitePageService.generateWhitePage(id, prompt, user.id);
 
-            res.json({ zip });
+            res.json({ task });
         } catch (error) {
             next(error);
         }
