@@ -11,6 +11,8 @@ import { templateRouter } from "./modules/routes/template-router.js";
 import { uniqualizationRouter } from "./modules/routes/uniqualization-router.js";
 import { whitePageRouter } from "./modules/routes/white-page-router.js";
 import userService from "./modules/user/user.service.js";
+import { cleaningQueue } from "./bull.js";
+import { generatedWhitePageRouter } from "./modules/routes/generated-white-page-router.js";
 
 dotenv.config();
 
@@ -34,7 +36,7 @@ app.use("/authorization", express.static(path.resolve() + "/static/authorization
 app.use("/admin", express.static(path.resolve() + "/static/admin"));
 
 //Routes
-app.use("/api", authorizationRouter, siteRouter, templateRouter, uniqualizationRouter, whitePageRouter);
+app.use("/api", authorizationRouter, siteRouter, templateRouter, uniqualizationRouter, whitePageRouter, generatedWhitePageRouter);
 
 //Custom middlewares
 app.use(errorMiddleware);
@@ -56,3 +58,7 @@ const PORT = process.env.PORT;
 
 //Starting server
 app.listen(PORT, () => console.log(`Server has been started on port ${PORT}`));
+
+cleaningQueue.add("zip", { lifetime: 15 * 1000 * 60, path: "/static/ready" }, { repeat: { every: 60000 } });
+cleaningQueue.add("dir", { lifetime: 15 * 1000 * 60, path: "/static/white-page_sites" }, { repeat: { every: 60000 } });
+cleaningQueue.add("db", { lifetime: 15 }, { repeat: { every: 60000 } });
