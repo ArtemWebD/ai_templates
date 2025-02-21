@@ -107,10 +107,30 @@
             <div class="modal-body">
               <form class="mt-3" id="whitePageForm">
                   <div class="form-group">
-                      <label for="wpPrompt">Запрос</label>
-                      <small class="form-text text-muted">Напишите тему своего сайта, опишите свой запрос как можно понятнее</small>
-                      <textarea id="wpPrompt" class="form-control" rows="6" maxlength="500"></textarea>
+                    <label for="language">Язык</label>
+                    <input type="text" class="form-control" placeholder="Введите язык" name="language">
+                    <small class="form-text text-muted">Язык генерации сайта</small>
                   </div>
+                  <div class="form-group mt-2">
+                    <label for="country">Страна</label>
+                    <input type="text" class="form-control" placeholder="Введите страну" name="country">
+                    <small class="form-text text-muted">С какой страной ассоциировать сайт</small>
+                  </div>
+                  <div class="form-group mt-2">
+                    <label for="company">Название компании</label>
+                    <input type="text" class="form-control" placeholder="Введите название компании" name="company">
+                    <small class="form-text text-muted">Название вашего бренда или компании</small>
+                  </div>
+                  <div class="form-group mt-2">
+                    <label for="description">Описание компании</label>
+                    <input type="text" class="form-control" placeholder="Введите описание компании" name="description">
+                    <small class="form-text text-muted">Описание вашего бренда или компании</small>
+                  </div>
+                  <div class="form-group mt-2">
+                    <label for="wpPrompt">Запрос</label>
+                    <small class="form-text text-muted">Напишите описание своего сайта, опишите свой запрос как можно понятнее</small>
+                    <textarea id="wpPrompt" class="form-control" name="prompt" rows="6" maxlength="500"></textarea>
+                </div>
                   <div class="form-group">
                     <label>Выберите шаблон</label>
                     <small class="form-text text-muted">Кликните по шаблону, который будет использован в генерации</small>
@@ -152,7 +172,6 @@
                         </tr>
                     </thead>
                     <tbody>
-
                     </tbody>
                 </table>
               </form>
