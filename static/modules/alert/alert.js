@@ -1,4 +1,13 @@
+/**
+ * Module for notifications
+ */
 export default class Alert {
+    /**
+     * Show notification
+     * @param {string} message notification's message
+     * @param {"success" | "danger"} type type of notification
+     * @returns {void}
+     */
     show(message, type) {
         if (type !== "success" && type !== "danger") {
             return;
@@ -16,6 +25,11 @@ export default class Alert {
         this.__hideHandler(container);
     }
 
+    /**
+     * Hide alert after appearance
+     * @param {HTMLDivElement} element alert dom element
+     * @returns {void}
+     */
     __hideHandler(element) {
         const styles = getComputedStyle(element);
         const time = (parseFloat(styles.animationDuration) + parseFloat(styles.animationDelay)) * 1000;

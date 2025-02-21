@@ -1,7 +1,16 @@
 import path from "path";
 import AdmZip from "adm-zip";
 
+/**
+ * Module for working with archives
+ */
 class Zip {
+    /**
+     * 
+     * @param {Buffer} file binary archive
+     * @param {string} filePath path fo unzipping
+     * @returns {Promise<void>}
+     */
     async unzip(file, filePath) {
         try {
             const zip = new AdmZip(file);
@@ -12,6 +21,12 @@ class Zip {
         }
     }
 
+    /**
+     * 
+     * @param {string} folderPath Directory path for zipping
+     * @param {string} title archive's title
+     * @returns {Promise<void>}
+     */
     async zip(folderPath, title) {
         try {
             const zip = new AdmZip();

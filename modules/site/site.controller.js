@@ -1,13 +1,18 @@
 import siteService from "./site.service.js";
 
 class SiteController {
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async upload(req, res, next) {
         try {
             const { templateId, title } = req.body;
-            const host = req.headers.host;
             const user = req.user;
 
-            const siteData = await siteService.createSite(templateId, title, host, user);
+            const siteData = await siteService.createSite(templateId, title, user);
 
             res.json(siteData);
         } catch (error) {
@@ -15,6 +20,12 @@ class SiteController {
         }
     }
 
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async getSites(req, res, next) {
         try {
             const user = req.user;
@@ -27,6 +38,12 @@ class SiteController {
         }
     }
 
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async download(req, res, next) {
         try {
             const user = req.user;
@@ -46,6 +63,12 @@ class SiteController {
         }
     }
 
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async deleteSite(req, res, next) {
         try {
             const user = req.user;
@@ -65,6 +88,12 @@ class SiteController {
         }
     }
 
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async saveChanges(req, res, next) {
         try {
             const user = req.user;

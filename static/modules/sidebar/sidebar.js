@@ -1,3 +1,6 @@
+/**
+ * Sidebar for json editor
+ */
 export default class Sidebar {
     __element;
     __buttonClass = ".modal-sidebar";
@@ -14,6 +17,9 @@ export default class Sidebar {
         this.__element.classList.remove("overlay-sidebar_active");
     }
 
+    /**
+     * Add sidebar html in document
+     */
     __addElement() {
         const container = document.createElement("div");
         container.classList.add("overlay-sidebar", "overlay-element");
@@ -39,6 +45,9 @@ export default class Sidebar {
         this.__openHandler();
     }
 
+    /**
+     * Handle sidebar close by button click
+     */
     __closeHandler() {
         const button = this.__element.querySelector(".overlay-close-element");
 
@@ -47,6 +56,9 @@ export default class Sidebar {
         }
     }
 
+    /**
+     * Handle sidebar openning by buttons click
+     */
     __openHandler() {
         const buttons = document.querySelectorAll(this.__buttonClass);
 

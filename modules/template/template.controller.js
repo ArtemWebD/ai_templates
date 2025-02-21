@@ -2,6 +2,12 @@ import ApiError from "../exceptions/api-error.js";
 import templateService from "./template.service.js";
 
 class TemplateController {
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async upload(req, res, next) {
         try {
             const file = req.file.buffer;
@@ -16,6 +22,12 @@ class TemplateController {
         }
     }
 
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async getTemplates(req, res, next) {
         try {
             const user = req.user;
@@ -28,6 +40,12 @@ class TemplateController {
         }
     }
 
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async deleteTemplate(req, res, next) {
         try {
             const user = req.user;

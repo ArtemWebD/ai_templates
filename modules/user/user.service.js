@@ -5,6 +5,13 @@ import UserDto from "../../dto/user.dto.js";
 import ApiError from "../exceptions/api-error.js";
 
 class UserService {
+    /**
+     * 
+     * @param {string} email user's email
+     * @param {string} name username
+     * @param {string} password user's password
+     * @returns {Promise<{ tokens: { accessToken: string, refreshToken: string }, user: UserDto }>}
+     */
     async registration(email, name, password) {
         const candidateEmail = await UserModel.findOne({ where: { email } });
 
@@ -18,6 +25,12 @@ class UserService {
         return this.__createResponseBody(user);
     }
 
+    /**
+     * 
+     * @param {string} email user's email
+     * @param {string} password user's password
+     * @returns {Promise<{ tokens: { accessToken: string, refreshToken: string }, user: UserDto }>}
+     */
     async login(email, password) {
         const user = await UserModel.findOne({ where: { email } });
         
@@ -34,6 +47,11 @@ class UserService {
         return this.__createResponseBody(user);
     }
 
+    /**
+     * 
+     * @param {string} refreshToken user's refresh token
+     * @returns {Promise<{ tokens: { accessToken: string, refreshToken: string }, user: UserDto }>}
+     */
     async refresh(refreshToken) {
         if (!refreshToken) {
             throw ApiError.UnauthorizedError();
@@ -51,6 +69,10 @@ class UserService {
         return this.__createResponseBody(user);
     }
 
+    /**
+     * 
+     * @returns {Promise<void>}
+     */
     async createSuperUser() {
         const candidateEmail = await UserModel.findOne({ where: { email: process.env.SUPER_USER_EMAIL } });
 

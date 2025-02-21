@@ -1,36 +1,47 @@
 import { APIRequest } from "../../modules/api/api.js";
 import WhitePage from "../../modules/white-page/white-page.js";
+import Prompt from "./prompt.js";
 
 export default class WhitePageForm {
     __id;
 
+    __form;
+
+    __prompt;
     __apiRequest = new APIRequest();
     __whitePage = new WhitePage();
 
     constructor() {
+        this.__form = this.__setForm();
+        this.__prompt = new Prompt(this.__form);
+
         this.__getWhitePages();
         this.__formHandler();
     }
 
-    __formHandler() {
+    __setForm() {
         const form = document.getElementById("whitePageForm");
 
         if (!form) {
-            return;
+            throw new Error("Element was not found");
         }
 
-        form.onsubmit = async (e) => {
+        return form;
+    }
+
+    __formHandler() {
+        this.__form.onsubmit = async (e) => {
             e.preventDefault();
 
-            const input = form.querySelector("#wpPrompt");
+            const prompt = this.__prompt.toString();
 
-            if (!input || !input.value || !this.__id) {
+            if (!prompt || !this.__id) {
                 return;
             }
 
-            await this.__whitePage.create(this.__id, input.value);
+            await this.__whitePage.create(this.__id, prompt);
 
-            form.reset();
+            this.__form.reset();
         }
     }
 

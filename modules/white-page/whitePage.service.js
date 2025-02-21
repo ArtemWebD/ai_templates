@@ -11,6 +11,12 @@ import GeneratedWhitePageDto from "../../dto/generatedWhitePage.dto.js";
 import DOM from "../DOM/DOM.js";
 
 class WhitePageService {
+    /**
+     * 
+     * @param {string} title template's title
+     * @param {Buffer} file binary archive
+     * @returns {Promise<void>}
+     */
     async upload(title, file) {
         const relativePath = `/static/white-page/${crypto.randomBytes(20).toString("hex")}/`;
         const fullPath = path.resolve() + relativePath;
@@ -26,12 +32,21 @@ class WhitePageService {
         await WhitePageModel.create({ title, path: relativePath });
     }
 
+    /**
+     * 
+     * @returns {Promise<WhitePageDto[]>}
+     */
     async getAll() {
         const whitePages = await WhitePageModel.findAll();
 
         return whitePages.map((value) => new WhitePageDto(value));
     }
 
+    /**
+     * 
+     * @param {number} id white page's id
+     * @returns {Promise<void>}
+     */
     async remove(id) {
         const whitePage = await WhitePageModel.findOne({ where: { id } });
 
@@ -45,6 +60,13 @@ class WhitePageService {
         await WhitePageModel.destroy({ where: { id } });
     }
 
+    /**
+     * 
+     * @param {number} id white page's id
+     * @param {string} prompt user's prompt
+     * @param {number} userId user's id
+     * @returns {Promise<GeneratedWhitePageDto>}
+     */
     async generateWhitePage(id, prompt, userId) {
         //Check existing of template
         const whitePage = await WhitePageModel.findOne({ where: { id } });
@@ -61,6 +83,11 @@ class WhitePageService {
         return new GeneratedWhitePageDto(generatedWhitePage);
     }
 
+    /**
+     * 
+     * @param {number} id white page's id
+     * @returns {Promise<string>}
+     */
     async getJson(id) {
         const fullPath = await this.__getJsonPath(id);
 
@@ -73,6 +100,12 @@ class WhitePageService {
         return fs.readFile(fullPath, { encoding: "utf8" });
     }
 
+    /**
+     * 
+     * @param {number} id white page's id 
+     * @param {string} json updated json
+     * @returns {Promise<void>}
+     */
     async updateJson(id, json) {
         const fullPath = await this.__getJsonPath(id);
 

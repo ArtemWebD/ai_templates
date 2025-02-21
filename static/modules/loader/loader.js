@@ -1,3 +1,6 @@
+/**
+ * Module for loader html element
+ */
 export default class Loader {
     __element;
 

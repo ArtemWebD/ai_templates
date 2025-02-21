@@ -6,6 +6,12 @@ import DOM from "../DOM/DOM.js";
 import unifierService from "../unifier/unifier.service.js";
 
 class WhitePageProcessor {
+    /**
+     * 
+     * @param {import("bull").Job} job bull's job
+     * @param {import("bull").DoneCallback} done bull's done function
+     * @returns {Promise<void>}
+     */
     async generate(job, done) {
         try {
             const { prompt, whitePage, title } = job.data;

@@ -1,6 +1,9 @@
 import { OpenAI } from "openai";
 import { Agent } from "https";
 
+/**
+ * Singleton class of chat gpt client
+ */
 class ChatGPT {
     static _instance;
     __openaiapi;
@@ -12,6 +15,10 @@ class ChatGPT {
         });
     }
 
+    /**
+     * 
+     * @returns {ChatGPT}
+     */
     static getInstance() {
         if (!this._instance) {
             this._instance = new ChatGPT();
@@ -20,6 +27,11 @@ class ChatGPT {
         return this._instance;
     }
 
+    /**
+     * Creating prompt for uniquelization
+     * @param {string} text Conditions for uniquelization
+     * @returns {string} text answer from AI
+     */
     async createUniquePrompt(text) {
         const conditions = {
             "role": "user",
@@ -35,6 +47,11 @@ class ChatGPT {
         return this.__createPrompt(text, conditions);
     }
 
+    /**
+     * Creating prompt for uniquelization of metatags
+     * @param {string} text Conditions for uniquelization
+     * @returns {string} text answer from AI
+     */
     async createMetatagsPrompt(text) {
         const conditions = {
             "role": "user",
@@ -48,6 +65,12 @@ class ChatGPT {
         return this.__createPrompt(text, conditions);
     }
 
+    /**
+     * Creating prompt for uniquelization of white page's block
+     * @param {string} text Conditions for uniquelization
+     * @param {string} prompt User's conditions
+     * @returns {string} text answer from AI
+     */
     async createWhitePagePrompt(text, prompt) {
         const conditions = {
             "role": "user",

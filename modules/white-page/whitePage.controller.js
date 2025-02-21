@@ -2,6 +2,12 @@ import ApiError from "../exceptions/api-error.js";
 import whitePageService from "./whitePage.service.js";
 
 class WhitePageController {
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async uploadTemplate(req, res, next) {
         try {
             const { title } = req.body;
@@ -15,6 +21,12 @@ class WhitePageController {
         }
     }
 
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async getAll(req, res, next) {
         try {
             const whitePages = await whitePageService.getAll();
@@ -25,6 +37,12 @@ class WhitePageController {
         }
     }
 
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async remove(req, res, next) {
         try {
             const id = +req.params.id;
@@ -41,6 +59,12 @@ class WhitePageController {
         }
     }
 
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async create(req, res, next) {
         try {
             const { id, prompt } = req.body;
@@ -54,6 +78,12 @@ class WhitePageController {
         }
     }
 
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async getJson(req, res, next) {
         try {
             const id = +req.params.id;
@@ -70,6 +100,12 @@ class WhitePageController {
         }
     }
 
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async updateJson(req, res, next) {
         try {
             const { id, json } = req.body;

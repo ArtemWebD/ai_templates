@@ -9,7 +9,14 @@ import zip from "../zip/zip.js";
 import imageManager from "../imageManager/imageManager.js";
 
 class SiteService {
-    async createSite(templateId, title, host, user) {
+    /**
+     * 
+     * @param {number} templateId template's id
+     * @param {string} title site's title
+     * @param {UserDto} user user's object
+     * @returns {Promise<SiteDto>} site's object
+     */
+    async createSite(templateId, title, user) {
         //Check existing of template
         const template = await templateService.findById(templateId);
 
@@ -39,6 +46,11 @@ class SiteService {
         return siteData;
     }
 
+    /**
+     * 
+     * @param {UserDto} user user's object
+     * @returns {Promise<SiteDto[]>} found sites
+     */
     async getSites(user) {
         const sites = await SiteModel.findAll({ where: { userId: user.id } });
         const siteDataArray = sites.map((value) => new SiteDto(value));
@@ -46,6 +58,12 @@ class SiteService {
         return siteDataArray;
     }
 
+    /**
+     * Clear site from unusable images and server's script and zip it
+     * @param {UserDto} user user's object
+     * @param {number} id site's id
+     * @returns {Promise<string>} site's archive path
+     */
     async cleanSite(user, id) {
         const site = await this.getSiteByUserAndId(user, id)
 
@@ -68,6 +86,12 @@ class SiteService {
         return zipPath;
     }
 
+    /**
+     * 
+     * @param {UserDto} user user's object
+     * @param {number} id site's id
+     * @returns {Promise<void>}
+     */
     async deleteSite(user, id) {
         const site = await this.getSiteByUserAndId(user, id);
 
@@ -77,6 +101,13 @@ class SiteService {
         await fs.rm(sitePath, { recursive: true, force: true });
     }
 
+    /**
+     * Update site's html
+     * @param {UserDto} user user's object
+     * @param {number} id site's id
+     * @param {string} html updated html
+     * @returns {Promise<void>}
+     */
     async saveChanges(user, id, html) {
         const site = await this.getSiteByUserAndId(user, id);
 
@@ -87,6 +118,12 @@ class SiteService {
         await fs.writeFile(siteHtmlPath, cleanHtml);
     }
 
+    /**
+     * 
+     * @param {UserDto} user user's object
+     * @param {number} id site's id
+     * @returns {Promise<SiteModel>} record from database
+     */
     async getSiteByUserAndId(user, id) {
         const site = await SiteModel.findOne({ where: { userId: user.id, id } });
 

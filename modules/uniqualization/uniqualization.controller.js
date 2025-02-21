@@ -1,6 +1,12 @@
 import uniqualizationService from "./uniqualization.service.js";
 
 class UniqualiztionController {
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async unique(req, res, next) {
         try {
             const { prompt, text, language } = req.body;
@@ -13,6 +19,12 @@ class UniqualiztionController {
         }
     }
 
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async getPrompt(req, res, next) {
         try {
             const prompt = await uniqualizationService.getPromptFromFile();
@@ -23,6 +35,12 @@ class UniqualiztionController {
         }
     }
 
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async uniqueMetatags(req, res, next) {
         try {
             const { title, description, keywords } = req.body;
@@ -35,6 +53,12 @@ class UniqualiztionController {
         }
     }
 
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async uploadImage(req, res, next) {
         try {
             const user = req.user;

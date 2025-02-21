@@ -8,9 +8,9 @@ export default class UnifierFile {
 
     /**
      * 
-     * @param {*} path path to file on the disk
-     * @param {*} buffer text content of file
-     * @param {*} filetype html or css file
+     * @param {string} path path to file on the disk
+     * @param {string} buffer text content of file
+     * @param {"html" | "css"} filetype html or css file
      */
     constructor(path, buffer, filetype) {
         this.path = path;
@@ -20,7 +20,8 @@ export default class UnifierFile {
 
     /**
      * Unify classes of file's text content
-     * @param {*} classes Instance of UnifierClasses class
+     * @param {UnifierClasses} classes Instance of UnifierClasses class
+     * @returns {void}
      */
     unify(classes) {
         if (this.filetype === "html") {
@@ -32,6 +33,7 @@ export default class UnifierFile {
 
     /**
      * Write file on the disk
+     * @returns {Promise<void>}
      */
     async save() {
         await fs.writeFile(this.path, this.buffer);

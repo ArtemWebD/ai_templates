@@ -1,6 +1,15 @@
 import jsdom from "jsdom";
 
+/**
+ * Module for working with DOM document
+ */
 class DOM {
+    /**
+     * Add server's scripts to document
+     * @param {string | Buffer} file html data
+     * @param {string} host host of server
+     * @returns {string} serialized DOM
+     */
     addOverlayScripts(file, host) {
         const { JSDOM } = jsdom;
         const dom = new JSDOM(file);
@@ -33,6 +42,12 @@ class DOM {
         return dom.serialize();
     }
 
+    /**
+     * Add server's json editor scripts to document
+     * @param {string | Buffer} file html data
+     * @param {string} host host of server
+     * @returns {string} serialized DOM
+     */
     addJsonEditor(file, host) {
         const { JSDOM } = jsdom;
         const dom = new JSDOM(file);
@@ -68,6 +83,11 @@ class DOM {
         return dom.serialize();
     }
 
+    /**
+     * Remove server's scripts and elements from document
+     * @param {string | Buffer} file html data 
+     * @returns {string} serialized DOM
+     */
     removeOverlayElements(file) {
         const { JSDOM } = jsdom;
         const dom = new JSDOM(file);
@@ -91,6 +111,11 @@ class DOM {
         return dom.serialize();
     }
 
+    /**
+     * Remove server's elements from document
+     * @param {string | Buffer} file html data 
+     * @returns {string} serialized DOM 
+     */
     clean(file) {
         const { JSDOM } = jsdom;
         const dom = new JSDOM(file);
@@ -106,6 +131,11 @@ class DOM {
         return dom.serialize();
     }
 
+    /**
+     * Return src attributes content of img from document
+     * @param {string | Buffer} file html data 
+     * @returns {string[]} Paths of images
+     */
     getAllImgPaths(file) {
         const { JSDOM } = jsdom;
         const dom = new JSDOM(file);
@@ -115,6 +145,12 @@ class DOM {
         return images.map((element) => element.src);
     }
 
+    /**
+     * Change specified elements html content
+     * @param {string | Buffer} file html data 
+     * @param {{ selectors: string[], value: string }} changes Object of element's changes
+     * @returns {string} serialized DOM 
+     */
     writeElementChanges(file, changes) {
         const { JSDOM } = jsdom;
         const dom = new JSDOM(file);
@@ -129,7 +165,9 @@ class DOM {
     }
 
     /**
-     * Return array of html classes
+     * Return html classes without repeats
+     * @param {string | Buffer} html html data 
+     * @returns {string[]} Html classes
      */
     getClasses(html) {
         const { JSDOM } = jsdom;
@@ -153,10 +191,10 @@ class DOM {
 
     /**
      * Change old class of elements to new class
-     * @param {*} html html buffer or string
-     * @param {*} oldClass class of elements for changing
-     * @param {*} newClass new class for elements
-     * @returns updated html string
+     * @param {string | Buffer} html html data
+     * @param {string} oldClass class of elements for changing
+     * @param {string} newClass new class for elements
+     * @returns {string} serialized DOM
      */
     changeClasses(html, oldClass, newClass) {
         const { JSDOM } = jsdom;

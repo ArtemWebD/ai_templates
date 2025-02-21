@@ -2,7 +2,17 @@ import fs from "fs/promises";
 import * as crypto from "crypto";
 import DOM from "../DOM/DOM.js";
 
+/**
+ * Module for image management
+ */
 class ImageManager {
+    /**
+     * Write image from binary data to directory
+     * @param {string} directory full path to image's directory
+     * @param {string} extension image's file extension
+     * @param {Buffer} buffer binary file
+     * @returns {Promise<string>} image's filename
+     */
     async writeImage(directory, extension, buffer) {
         const filename = crypto.randomBytes(20).toString("hex") + extension;
 
@@ -17,6 +27,11 @@ class ImageManager {
         return filename;
     }
 
+    /**
+     * Remove images that are not used in the html
+     * @param {string} directory full path to image's directory
+     * @returns {Promise<void>} 
+     */
     async removeUnusableImages(directory) {
         const dirname = "overlay-images/";
         const dirPath = directory + dirname;

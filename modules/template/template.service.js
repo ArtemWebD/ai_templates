@@ -6,6 +6,13 @@ import TemplateDto from "../../dto/template.dto.js";
 import ApiError from "../exceptions/api-error.js";
 
 class TemplateService {
+    /**
+     *
+     * @param {Buffer} file binary zip archive
+     * @param {string} title template's title
+     * @param {UserDto} user user's object
+     * @returns {Promise<TemplateDto>}
+     */
     async createTemplate(file, title, user) {
         const templateRelativePath = "/static/templates/" + title;
         const templatePath = path.resolve() + templateRelativePath;
@@ -22,6 +29,11 @@ class TemplateService {
         return templateData;
     }
 
+    /**
+     * 
+     * @param {UserDto} user user's object
+     * @returns {Promise<TemplateDto[]>}
+     */
     async getTemplates(user) {
         const templates = await TemplateModel.findAll({ where: { userId: user.id } });
         const templateDataArray = templates.map((value) => new TemplateDto(value));
@@ -29,6 +41,12 @@ class TemplateService {
         return templateDataArray;
     }
 
+    /**
+     * 
+     * @param {UserDto} user user's object
+     * @param {number} id template's id
+     * @returns {Promise<void>} 
+     */
     async deleteTemplate(user, id) {
         const template = await TemplateModel.findOne({ where: { id, userId: user.id } });
 
@@ -42,6 +60,11 @@ class TemplateService {
         await fs.rm(templatePath, { recursive: true, force: true });
     }
 
+    /**
+     * 
+     * @param {number} id template's id
+     * @returns {Promise<TemplateModel>}
+     */
     async findById(id) {
         return TemplateModel.findOne({ where: { id } });
     }

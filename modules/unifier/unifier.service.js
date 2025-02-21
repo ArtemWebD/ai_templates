@@ -7,7 +7,8 @@ import UnifierClasses from "./unifier.classes.js";
 class UnifierService {
     /**
      * Unify classes of html and css files
-     * @param {*} dir Site's directory path
+     * @param {string} dir Site's directory path
+     * @returns {Promise<void>}
      */
     async unifyText(dir) {
         const htmlFiles = await this.__getFiles(dir, "html");

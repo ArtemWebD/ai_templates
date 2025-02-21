@@ -2,7 +2,16 @@ import path from "path";
 import fs from "fs/promises";
 import generatedWhitePageService from "../generatedWhitePage/generatedWhitePage.service.js";
 
+/**
+ * Cleaning module
+ */
 class CleanerProcessor {
+    /**
+     * Clean directories
+     * @param {import("bull").Job} job bull's job object
+     * @param {import("bull").DoneCallback} done bull's done function
+     * @returns {Promise<void>}
+     */
     async clean(job, done) {
         try {
             const lifetime = job.data.lifetime;
@@ -34,6 +43,12 @@ class CleanerProcessor {
         }
     }
 
+    /**
+     * Clean database of temporary records
+     * @param {import("bull").Job} job bull's job object
+     * @param {import("bull").DoneCallback} done bull's done function
+     * @returns {Promise<void>}
+     */
     async cleanDatabase(job, done) {
         try {
             const lifetime = job.data.lifetime;

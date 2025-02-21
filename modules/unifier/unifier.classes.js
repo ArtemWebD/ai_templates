@@ -3,7 +3,7 @@ export default class UnifierClasses {
 
     /**
      * Store html classes in key-value format
-     * @param {*} classes Array of html classes
+     * @param {string[]} classes Array of html classes
      */
     constructor(classes) {
         this.__generateClasses(classes);

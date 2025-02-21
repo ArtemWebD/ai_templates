@@ -3,6 +3,12 @@ import userService from "./user.service.js";
 import ApiError from "../exceptions/api-error.js";
 
 class UserController {
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async registration(req, res, next) {
         try {
             const errors = validationResult(req);
@@ -22,6 +28,12 @@ class UserController {
         }
     }
 
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async login(req, res, next) {
         try {
             const errors = validationResult(req);
@@ -41,6 +53,12 @@ class UserController {
         }
     }
 
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async refresh(req, res, next) {
         try {
             const { refreshToken } = req.cookies;
@@ -54,6 +72,12 @@ class UserController {
         }
     }
 
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
     async checkAdmin(req, res, next) {
         try {
             const user = req.user;

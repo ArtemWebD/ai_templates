@@ -5,6 +5,13 @@ import siteService from "../site/site.service.js";
 import imageManager from "../imageManager/imageManager.js";
 
 class UniqualizationService {
+    /**
+     * 
+     * @param {string} prompt user's prompt
+     * @param {string} text serialized html
+     * @param {string} language language of answer
+     * @returns {Promise<string>}
+     */
     async unique(prompt, text, language) {
         let gptPrompt = prompt;
 
@@ -23,11 +30,22 @@ class UniqualizationService {
         return response;
     }
 
+    /**
+     * Get default prompt from txt file
+     * @returns {Promise<string>}
+     */
     async getPromptFromFile() {
         const pathPrompt = path.resolve() + "/prompts/unique.txt";
         return fs.readFile(pathPrompt, { encoding: "utf8" });
     }
 
+    /**
+     * 
+     * @param {string} title title metatag prompt
+     * @param {string} description description metatag prompt
+     * @param {string} keywords keywords metatag prompt
+     * @returns {Promise<{ title: string, description: string, keywords: string }>}
+     */
     async uniqueMetatags(title, description, keywords) {
         const response = {
             title: "",
@@ -56,6 +74,13 @@ class UniqualizationService {
         return response;
     }
 
+    /**
+     * Upload user's image to site
+     * @param {UserDto} user user's object
+     * @param {number} id site's id
+     * @param {Buffer} file binary image
+     * @returns {Promise<string>}
+     */
     async uploadImage(user, id, file) {
         const site = await siteService.getSiteByUserAndId(user, id);
 

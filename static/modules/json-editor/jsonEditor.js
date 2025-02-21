@@ -1,6 +1,9 @@
 import WhitePage from "../white-page/white-page.js";
 import JsonData from "./jsonData.js";
 
+/**
+ * Json editor form handler
+ */
 export default class JsonEditor {
     __form;
     __id;
@@ -9,6 +12,10 @@ export default class JsonEditor {
     __dataElements = new JsonData();
     __whitePage = new WhitePage();
 
+    /**
+     * 
+     * @param {Sidebar} sidebar 
+     */
     constructor(sidebar) {
         this.__sidebar = sidebar;
         this.__form = document.getElementById("json-form");
@@ -19,10 +26,14 @@ export default class JsonEditor {
 
         this.__getId();
         this.__setJsonData();
+        
         this.__pageClickHandler();
         this.__saveHandler();
     }
 
+    /**
+     * Get id of template
+     */
     __getId() {
         const urlParams = new URLSearchParams(window.location.search);
         this.__id = urlParams.get("id");
@@ -32,6 +43,9 @@ export default class JsonEditor {
         }
     }
 
+    /**
+     * Get json of specified white page
+     */
     async __setJsonData() {
         const json = await this.__whitePage.getJson(this.__id);
         const jsonObject = JSON.parse(json);
@@ -41,6 +55,11 @@ export default class JsonEditor {
         });
     }
 
+    /**
+     * Append input group in form with specified data
+     * @param {string | undefined} selectors selectors value
+     * @param {string | undefined} prompt prompt value
+     */
     __appendInputGroup(selectors = "", prompt = "") {
         const container = document.createElement("div");
 
@@ -60,6 +79,9 @@ export default class JsonEditor {
         this.__updateHandler();
     }
 
+    /**
+     * Handle input groups remove button
+     */
     __removeHandler() {
         const elements = this.__form.querySelectorAll(".overlay-sidebar__input__close");
 
@@ -71,6 +93,9 @@ export default class JsonEditor {
         });
     }
 
+    /**
+     * Handle clicks on elements to save selectors
+     */
     __pageClickHandler() {
         document.onclick = (e) => {
             e.preventDefault();
@@ -95,6 +120,9 @@ export default class JsonEditor {
         }
     }
 
+    /**
+     * Update json data by inputs and set focus on selected elements
+     */
     __updateHandler() {
         const forms = this.__form.querySelectorAll(".overlay-sidebar__input");
 
@@ -132,6 +160,9 @@ export default class JsonEditor {
         });
     }
 
+    /**
+     * Save changes handler
+     */
     __saveHandler() {
         const button = document.querySelector(".overlay-sidebar__save");
 
@@ -142,6 +173,11 @@ export default class JsonEditor {
         }
     }
 
+    /**
+     * Get full selector of element
+     * @param {HTMLElement} el 
+     * @returns {string | null}
+     */
     __generateSelector(el) {
         if (!el) {
             return null;

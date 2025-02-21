@@ -30,6 +30,9 @@ API.interceptors.response.use((config) => {
     throw error;
 });
 
+/**
+ * Module for creating requests to API
+ */
 export class APIRequest {
     __API = API;
 
@@ -37,6 +40,13 @@ export class APIRequest {
     __loader = new Loader();
 
     //Body consists of method, url, data
+
+    /**
+     * 
+     * @param {{ method: string, url: string, data: any }} body params of api request
+     * @param {string | undefined} successMessage message that will show if request final successful
+     * @returns {Promise<AxiosResponse>}
+     */
     async createRequest(body, successMessage = "") {
         try {
             this.__loader.show();
