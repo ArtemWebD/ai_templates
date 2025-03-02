@@ -37,7 +37,7 @@ class TokenService {
     /**
      * 
      * @param {string} token user's access token
-     * @returns {Promise<UserDto | null>}
+     * @returns {UserDto | null}
      */
     validateAccessToken(token) {
         try {

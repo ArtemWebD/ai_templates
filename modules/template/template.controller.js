@@ -14,9 +14,9 @@ class TemplateController {
             const title = req.body.title;
             const user = req.user;
 
-            const templateData = await templateService.createTemplate(file, title, user);
+            const template = await templateService.createTemplate(file, title, user);
 
-            res.json(templateData);
+            res.json({ template });
         } catch (error) {
             next(error);
         }

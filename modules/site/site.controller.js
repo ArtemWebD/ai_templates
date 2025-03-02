@@ -12,9 +12,9 @@ class SiteController {
             const { templateId, title } = req.body;
             const user = req.user;
 
-            const siteData = await siteService.createSite(templateId, title, user);
+            const site = await siteService.createSite(templateId, title, user);
 
-            res.json(siteData);
+            res.json({ site });
         } catch (error) {
             next(error);
         }
