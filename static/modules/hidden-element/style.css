@@ -1,0 +1,8 @@
+.hidden-element {
+    overflow: hidden;
+    height: 0;
+}
+
+.hidden-element_active {
+    height: auto;
+}

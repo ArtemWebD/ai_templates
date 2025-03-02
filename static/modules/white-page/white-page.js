@@ -8,17 +8,15 @@ export default class WhitePage {
 
     /**
      * Upload new white page's template
-     * @param {string} title white page template's title
-     * @param {File} file zip archive of template
+     * @param {FormData} data white page template's title and zip archive
      * @returns {Promise<void>}
      */
-    async upload(title, file) {
-        const data = new FormData();
-
-        data.append("title", title);
-        data.append("site", file);
-
-        await this.__apiRequest.createRequest({ url: "/white-page/upload", method: "post", data }, "Шаблон успешно добавлен");
+    async upload(data) {
+        const response = await this.__apiRequest.createRequest(
+            { url: "/white-page/upload", method: "post", data }, "Шаблон успешно добавлен"
+        );
+        
+        return response.data.whitePage;
     }
 
     /**
@@ -61,12 +59,11 @@ export default class WhitePage {
 
     /**
      * 
-     * @param {number | string} id white page's id
-     * @param {string} json json object
+     * @param {{id: number, json: string}} data white page's id and json object
      * @returns {Promise<void>}
      */
-    async updateJson(id, json) {
-        await this.__apiRequest.createRequest({ url: "/white-page/json", method: "put", data: { id, json } }, "Изменения успешно сохранены");
+    async updateJson(data) {
+        await this.__apiRequest.createRequest({ url: "/white-page/json", method: "put", data }, "Изменения успешно сохранены");
     }
 
     /**
