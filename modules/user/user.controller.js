@@ -93,6 +93,22 @@ class UserController {
             next(error);
         }
     }
+
+    /**
+     * @param {import("express").Request} req express request
+     * @param {import("express").Response} res express response
+     * @param {import("express").NextFunction} next express next function
+     * @returns {Promise<void>}
+     */
+    async getAll(req, res, next) {
+        try {
+            const users = await userService.getAll();
+
+            res.json({ users });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new UserController();

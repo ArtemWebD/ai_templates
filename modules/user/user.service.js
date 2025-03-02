@@ -1,4 +1,4 @@
-import { UserModel } from "../../database.js";
+import { GenerateTokenModel, UserModel } from "../../database.js";
 import bcrypt from "bcrypt";
 import tokenService from "../token/token.service.js";
 import UserDto from "../../dto/user.dto.js";
@@ -88,6 +88,21 @@ class UserService {
             password: hashPassword,
             type: "super",
         });
+    }
+
+    /**
+     * @returns {Promise<UserDto[]>}
+     */
+    async getAll() {
+        const users = await UserModel.findAll({
+            include: [{
+                model: GenerateTokenModel,
+                as: "generateTokens",
+                attributes: ["id", "token", "count", "createdAt"]
+            }]
+        });
+
+        return users.map((user) => new UserDto(user));
     }
 
     async __createResponseBody(user) {
