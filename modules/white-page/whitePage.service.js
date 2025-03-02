@@ -15,7 +15,7 @@ class WhitePageService {
      * 
      * @param {string} title template's title
      * @param {Buffer} file binary archive
-     * @returns {Promise<void>}
+     * @returns {Promise<WhitePageDto>}
      */
     async upload(title, file) {
         const relativePath = `/static/white-page/${crypto.randomBytes(20).toString("hex")}/`;
@@ -29,7 +29,10 @@ class WhitePageService {
         const html = DOM.addJsonEditor(htmlFile, process.env.CLIENT_URL);
 
         await fs.writeFile(htmlPath, html);
-        await WhitePageModel.create({ title, path: relativePath });
+
+        const whitePage = await WhitePageModel.create({ title, path: relativePath });
+
+        return new WhitePageDto(whitePage);
     }
 
     /**
@@ -65,9 +68,10 @@ class WhitePageService {
      * @param {number} id white page's id
      * @param {string} prompt user's prompt
      * @param {number} userId user's id
+     * @param {string} token user's generate token
      * @returns {Promise<GeneratedWhitePageDto>}
      */
-    async generateWhitePage(id, prompt, userId) {
+    async generateWhitePage(id, prompt, userId, token) {
         //Check existing of template
         const whitePage = await WhitePageModel.findOne({ where: { id } });
 
@@ -77,7 +81,7 @@ class WhitePageService {
 
         const title = crypto.randomBytes(20).toString("hex");
         
-        const job = await whitePageQueue.add({ prompt, whitePage, title });
+        const job = await whitePageQueue.add({ prompt, whitePage, title, token });
         const generatedWhitePage = await generatedWhitePageService.create(title, whitePage.id, userId, job.id);
 
         return new GeneratedWhitePageDto(generatedWhitePage);

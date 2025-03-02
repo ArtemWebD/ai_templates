@@ -4,6 +4,7 @@ import zip from "../zip/zip.js";
 import chatGPT from "../chatGPT/chatGPT.js";
 import DOM from "../DOM/DOM.js";
 import unifierService from "../unifier/unifier.service.js";
+import generateTokenService from "../generateToken/generateToken.service.js";
 
 class WhitePageProcessor {
     /**
@@ -14,7 +15,7 @@ class WhitePageProcessor {
      */
     async generate(job, done) {
         try {
-            const { prompt, whitePage, title } = job.data;
+            const { prompt, whitePage, title, token } = job.data;
 
             //Copy template's file to site's directory
             const dirName = title;
@@ -48,8 +49,12 @@ class WhitePageProcessor {
                 await fs.writeFile(htmlPath, html);
             }
     
+            //Unify and zip
             await unifierService.unifyText(destinationPath);
             await zip.zip(destinationPath, dirName);
+
+            //Decrease token uses
+            await generateTokenService.decreaseCount(token);
     
             done();
         } catch (error) {
