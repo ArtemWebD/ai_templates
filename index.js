@@ -13,6 +13,7 @@ import { whitePageRouter } from "./modules/routes/white-page-router.js";
 import userService from "./modules/user/user.service.js";
 import { cleaningQueue } from "./bull.js";
 import { generatedWhitePageRouter } from "./modules/routes/generated-white-page-router.js";
+import { generateTokenRouter } from "./modules/routes/generate-token-router.js";
 
 dotenv.config();
 
@@ -23,7 +24,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
     credentials: true,
-    origin: process.env.CLIENT_URL,
+    origin: process.env.HEADER_ORIGIN,
 }));
 
 //Static routes
@@ -36,7 +37,11 @@ app.use("/authorization", express.static(path.resolve() + "/static/authorization
 app.use("/admin", express.static(path.resolve() + "/static/admin"));
 
 //Routes
-app.use("/api", authorizationRouter, siteRouter, templateRouter, uniqualizationRouter, whitePageRouter, generatedWhitePageRouter);
+app.use(
+    "/api", 
+    authorizationRouter, siteRouter, templateRouter, uniqualizationRouter, whitePageRouter, 
+    generatedWhitePageRouter, generateTokenRouter
+);
 
 //Custom middlewares
 app.use(errorMiddleware);

@@ -7,6 +7,7 @@ export default (sequelize) => {
             UserModel.hasMany(models.TemplateModel, { onDelete: "cascade" });
             UserModel.hasMany(models.SiteModel, { onDelete: "cascade" });
             UserModel.hasMany(models.GeneratedWhitePageModel, { onDelete: "cascade", foreignKey: "userId", as: "generatedWhitePage" });
+            UserModel.hasMany(models.GenerateTokenModel, { onDelete: "cascade", foreignKey: "userId", as: "generateTokens" });
         }
     }
 
