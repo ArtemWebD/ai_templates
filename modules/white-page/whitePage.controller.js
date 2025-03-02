@@ -13,9 +13,9 @@ class WhitePageController {
             const { title } = req.body;
             const file = req.file.buffer;
 
-            await whitePageService.upload(title, file);
+            const whitePage = await whitePageService.upload(title, file);
 
-            res.status(200).send();
+            res.json({ whitePage });
         } catch (error) {
             next(error);
         }
@@ -69,8 +69,9 @@ class WhitePageController {
         try {
             const { id, prompt } = req.body;
             const user = req.user;
+            const token = req.generateToken;
 
-            const task = await whitePageService.generateWhitePage(id, prompt, user.id);
+            const task = await whitePageService.generateWhitePage(id, prompt, user.id, token);
 
             res.json({ task });
         } catch (error) {
