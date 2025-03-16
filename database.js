@@ -7,6 +7,7 @@ import templateModel from "./models/template.model.js";
 import siteModel from "./models/site.model.js";
 import generatedWhitePageModel from "./models/generatedWhitePage.model.js";
 import generateTokenModel from "./models/generateToken.model.js";
+import keywordsModel from "./models/keywords.model.js";
 
 dotenv.config();
 
@@ -19,15 +20,17 @@ const SiteModel = siteModel(sequelize);
 const WhitePageModel = whitePageModel(sequelize);
 const GeneratedWhitePageModel = generatedWhitePageModel(sequelize);
 const GenerateTokenModel = generateTokenModel(sequelize);
+const KeywordsModel = keywordsModel(sequelize);
 
 UserModel.associate({ UserModel, TokenModel, TemplateModel, SiteModel, GeneratedWhitePageModel, GenerateTokenModel });
 GenerateTokenModel.associate({ UserModel });
 TokenModel.associate({ UserModel, TokenModel });
-TemplateModel.associate({ UserModel, SiteModel });
+TemplateModel.associate({ UserModel, SiteModel, KeywordsModel });
 SiteModel.associate({ UserModel, TemplateModel });
 WhitePageModel.associate({ WhitePageModel, GeneratedWhitePageModel });
 GeneratedWhitePageModel.associate({ UserModel, WhitePageModel, GeneratedWhitePageModel });
+KeywordsModel.associate({ TemplateModel });
 
 export {
-    UserModel, GenerateTokenModel, TokenModel, TemplateModel, SiteModel, WhitePageModel, GeneratedWhitePageModel
+    UserModel, GenerateTokenModel, TokenModel, TemplateModel, SiteModel, WhitePageModel, GeneratedWhitePageModel, KeywordsModel
 }
