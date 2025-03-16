@@ -4,7 +4,7 @@ export default (sequelize) => {
     class SiteModel extends Model {
         static associate(models) {
             SiteModel.belongsTo(models.UserModel);
-            SiteModel.belongsTo(models.TemplateModel);
+            SiteModel.belongsTo(models.TemplateModel, { as: "template" });
         }
     }
 

@@ -5,6 +5,7 @@ export default (sequelize) => {
         static associate(models) {
             TemplateModel.belongsTo(models.UserModel);
             TemplateModel.hasMany(models.SiteModel, { onDelete: "cascade" });
+            TemplateModel.hasMany(models.KeywordsModel, { onDelete: "cascade" });
         }
     }
 
@@ -25,6 +26,11 @@ export default (sequelize) => {
                 validate: {
                     len: [1, 30],
                 },
+            },
+            pages: {
+                type: DataTypes.ARRAY(DataTypes.STRING),
+                allowNull: false,
+                defaultValue: ["index.html"],
             },
             userId: {
                 type: DataTypes.INTEGER,
