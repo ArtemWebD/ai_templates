@@ -14,6 +14,7 @@ import userService from "./modules/user/user.service.js";
 import { cleaningQueue } from "./bull.js";
 import { generatedWhitePageRouter } from "./modules/routes/generated-white-page-router.js";
 import { generateTokenRouter } from "./modules/routes/generate-token-router.js";
+import { keywordsRouter } from "./modules/routes/keywords-router.js";
 
 dotenv.config();
 
@@ -32,15 +33,11 @@ app.use("/static", express.static(path.resolve() + "/static"));
 
 app.use("/modules", express.static(path.resolve() + "/static/modules"));
 
-app.use("/", express.static(path.resolve() + "/static/main"));
-app.use("/authorization", express.static(path.resolve() + "/static/authorization"));
-app.use("/admin", express.static(path.resolve() + "/static/admin"));
-
 //Routes
 app.use(
     "/api", 
     authorizationRouter, siteRouter, templateRouter, uniqualizationRouter, whitePageRouter, 
-    generatedWhitePageRouter, generateTokenRouter
+    generatedWhitePageRouter, generateTokenRouter, keywordsRouter
 );
 
 //Custom middlewares
