@@ -4,6 +4,7 @@ import zip from "../zip/zip.js";
 import { TemplateModel } from "../../database.js";
 import TemplateDto from "../../dto/template.dto.js";
 import ApiError from "../exceptions/api-error.js";
+import FileSystemService from "../file-system/fileSystem.service.js";
 
 class TemplateService {
     /**
@@ -19,10 +20,13 @@ class TemplateService {
 
         await zip.unzip(file, templatePath);
 
+        const pages = await FileSystemService.getFilesByExtension(templatePath, ".html");
+
         const template = await TemplateModel.create({
             userId: user.id,
             title: title,
             path: templateRelativePath,
+            pages,
         });
         const templateData = new TemplateDto(template);
 

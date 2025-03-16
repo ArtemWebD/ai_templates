@@ -3,7 +3,7 @@ import fs from "fs/promises";
 import ApiError from "../exceptions/api-error.js";
 import templateService from "../template/template.service.js";
 import DOM from "../DOM/DOM.js";
-import { SiteModel } from "../../database.js";
+import { SiteModel, TemplateModel } from "../../database.js";
 import SiteDto from "../../dto/site.dto.js";
 import zip from "../zip/zip.js";
 import imageManager from "../imageManager/imageManager.js";
@@ -27,23 +27,21 @@ class SiteService {
         //Copy template's files to site's directory
         const siteRelativePath = "/static/sites/" + title;
         const sourcePath = path.resolve() + template.path;
-        const destinationPath = path.resolve() + siteRelativePath;
+        const destinationPath = path.join(path.resolve(), siteRelativePath);
 
         await fs.cp(sourcePath, destinationPath, { recursive: true });
 
         //Including editing scripts and styles
-        const destionationHtmlPath = destinationPath + "/index.html";
-
-        const htmlFile = await fs.readFile(destionationHtmlPath);
-        const updatedHtml = DOM.addOverlayScripts(htmlFile, process.env.CLIENT_URL);
-
-        await fs.writeFile(destionationHtmlPath, updatedHtml);
+        await this._addOverlayScripts(destinationPath, template.pages);
 
         //Returning site's data
-        const site = await SiteModel.create({ path: siteRelativePath, title, templateId, userId: user.id });
-        const siteData = new SiteDto(site);
+        let site = await SiteModel.create(
+            { path: siteRelativePath, title, templateId, userId: user.id },
+        );
+        
+        site = await this.getSiteByUserAndId(user, site.id);
 
-        return siteData;
+        return new SiteDto(site);
     }
 
     /**
@@ -52,7 +50,14 @@ class SiteService {
      * @returns {Promise<SiteDto[]>} found sites
      */
     async getSites(user) {
-        const sites = await SiteModel.findAll({ where: { userId: user.id } });
+        const sites = await SiteModel.findAll({
+            where: { userId: user.id },
+            include: {
+                as: "template",
+                model: TemplateModel,
+                attributes: ["pages"],
+            }
+        });
         const siteDataArray = sites.map((value) => new SiteDto(value));
 
         return siteDataArray;
@@ -67,18 +72,24 @@ class SiteService {
     async cleanSite(user, id) {
         const site = await this.getSiteByUserAndId(user, id)
 
-        const sitePath = path.resolve() + site.path;
+        const sitePath = path.join(path.resolve(), site.path);
 
-        const htmlFile = await fs.readFile(sitePath + "/index.html");
+        for (const page of site.template.pages) {
+            const filePath = path.join(sitePath, page);
+            const htmlFile = await fs.readFile(filePath);
 
-        //Remove server scripts and unusable images
-        const htmlString = DOM.removeOverlayElements(htmlFile);
+            //Remove server scripts
+            const htmlString = DOM.removeOverlayElements(htmlFile);
+
+            //Write result
+            await fs.writeFile(filePath, htmlString);
+        }
+
         await imageManager.removeUnusableImages(sitePath + "/");
 
-        //Write result
-        await fs.writeFile(sitePath + "/index.html", htmlString);
         zip.zip(sitePath, site.title);
-        await fs.writeFile(sitePath + "/index.html", htmlFile);
+        
+        await this._addOverlayScripts(sitePath, site.template.pages);
 
         //Return archive path
         const zipPath = "/static/ready/" + site.title + ".zip";
@@ -106,14 +117,15 @@ class SiteService {
      * @param {UserDto} user user's object
      * @param {number} id site's id
      * @param {string} html updated html
+     * @param {string} page page for updating
      * @returns {Promise<void>}
      */
-    async saveChanges(user, id, html) {
+    async saveChanges(user, id, html, page) {
         const site = await this.getSiteByUserAndId(user, id);
 
         const cleanHtml = DOM.clean(html);
 
-        const siteHtmlPath = path.resolve() + site.path + "/index.html";
+        const siteHtmlPath = path.join(path.resolve(), site.path, page);
 
         await fs.writeFile(siteHtmlPath, cleanHtml);
     }
@@ -125,13 +137,35 @@ class SiteService {
      * @returns {Promise<SiteModel>} record from database
      */
     async getSiteByUserAndId(user, id) {
-        const site = await SiteModel.findOne({ where: { userId: user.id, id } });
+        const site = await SiteModel.findOne({
+            where: { userId: user.id, id },
+            include: {
+                as: "template",
+                model: TemplateModel,
+                attributes: ["pages"],
+            },
+        });
 
         if (!site) {
             throw ApiError.BadRequest("Указанный сайт не найден");
         }
 
         return site;
+    }
+
+    /**
+     * @param {string} directory directory of site
+     * @param {string[]} pages pages of site
+     */
+    async _addOverlayScripts(directory, pages) {
+        for (const page of pages) {
+            const destionationHtmlPath = path.join(directory, page);
+
+            const htmlFile = await fs.readFile(destionationHtmlPath);
+            const updatedHtml = DOM.addOverlayScripts(htmlFile, process.env.CLIENT_URL);
+
+            await fs.writeFile(destionationHtmlPath, updatedHtml);
+        }
     }
 }
 

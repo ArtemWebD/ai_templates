@@ -97,9 +97,9 @@ class SiteController {
     async saveChanges(req, res, next) {
         try {
             const user = req.user;
-            const { id, html } = req.body;
+            const { id, html, page } = req.body;
 
-            await siteService.saveChanges(user, id, html);
+            await siteService.saveChanges(user, id, html, page);
 
             res.status(200).send();
         } catch (error) {
