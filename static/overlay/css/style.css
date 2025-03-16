@@ -30,12 +30,17 @@
     color: #0d6efd;
 }
 
-.overlay-input {
+.overlay-input, .overlay-textarea {
     border-radius: 5px;
     border: 1px solid #888888;
     scrollbar-width: none;
     padding: 5px 10px;
     outline: none;
+}
+
+.overlay-textarea {
+    resize: none;
+    width: 100%;
 }
 
 .overlay-close-element {
@@ -367,4 +372,33 @@
 .overlay-popup-overlay__active {
     z-index: 998;
     opacity: 1;
+}
+
+.overlay-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    overflow-y: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.overlay-modal__dialog {
+    background-color: #545454;
+    min-width: 40%;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.overlay-modal__title {
+    border-bottom: 1px solid #6b6b6b;
+}
+
+.overlay-modal__body {
+    margin-top: 20px;
 }
